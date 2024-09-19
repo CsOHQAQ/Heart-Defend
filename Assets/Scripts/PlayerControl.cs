@@ -60,11 +60,13 @@ public class PlayerControl : MonoBehaviour
             {
                 forceIndex = Vector2.Distance(moon.transform.position, transform.position) * CloseRangePullForce;
             }
-            Debug.Log($"Pulling force is {forceIndex}");
+
             moon.GetComponent<Rigidbody2D>().AddForce(force  * forceIndex * Time.deltaTime);
+            moon.isPulling= true;
         }
         else
         {
+            moon.isPulling = false;
             curPullForce = StartPullForce;
         }
     }
