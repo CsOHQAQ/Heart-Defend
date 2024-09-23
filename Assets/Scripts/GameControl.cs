@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class GameControl
 {
-    List<EnemyBase> enemyList;
-    List<LineRenderer> lanes;
     private static GameControl _gameControl=null;
     public static GameControl Game
     {
@@ -36,8 +34,6 @@ public class GameControl
         else
             Debug.LogError("Player Not Found!");
 
-        enemyList = new List<EnemyBase>();
-        lanes = new List<LineRenderer>();
     }
 
     // Update is called once per frame

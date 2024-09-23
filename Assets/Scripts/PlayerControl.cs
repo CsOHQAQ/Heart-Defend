@@ -5,6 +5,7 @@ using Rewired;
 using Unity.VisualScripting;
 using System.Data.Common;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 public class PlayerControl : MonoBehaviour
 {
@@ -16,45 +17,63 @@ public class PlayerControl : MonoBehaviour
     public float ForceIncreasement;
     public float CloseRangePullForce;
     public Vector2 targetFacing = Vector2.zero;
+    public bool CanControl = true;
 
+    public float MaxEnergy;
+    public float EnergyRecoverSpeed;
+
+
+    Light2D selfLight;
+    Light2D coneLight;
     Rigidbody2D rig;
     bool isMoving=false;
     Player player;
     Moon moon;
+    float curEnergy;
+    
 
     // Start is called before the first frame update
     void Start()
     {
         player=ReInput.players.GetPlayer(0);
         rig=GetComponent<Rigidbody2D>();
-        moon=GameObject.FindGameObjectWithTag("Moon").GetComponent<Moon>();
+        moon = GameControl.Game.moon;
 
+        selfLight=transform.Find("Self Light").GetComponentInChildren<Light2D>();
+        coneLight=transform.Find("Cone Light").GetComponent<Light2D>();
     }
 
     // Update is called once per frame
     void Update()
     {
         GetInput();
-
+               
         if (isMoving)
         {
             float targetAngle = Vector2.SignedAngle(Vector2.right, targetFacing);
             Vector3 v = transform.eulerAngles;
             transform.eulerAngles = new Vector3(0, 0, Mathf.MoveTowardsAngle(v.z, targetAngle, RotateSpeed * Time.deltaTime));
-            rig.velocity = Vector2.MoveTowards(rig.velocity, targetFacing*MaxSpeed,Acclerate*Time.deltaTime);
+            rig.velocity = Vector2.MoveTowards(rig.velocity, targetFacing*MaxSpeed,curEnergy/MaxEnergy*Acclerate*Time.deltaTime);
         }
         else//Stopping
         {
             rig.velocity = Vector2.MoveTowards(rig.velocity,Vector2.zero,Acclerate*Time.deltaTime/4);
         }
 
-        if(player.GetButton("Pull"))
-        {
-            curPullForce += ForceIncreasement * Time.deltaTime;
 
+        if(player.GetButton("Pull")&&curEnergy>0)
+        {
+            //Consume Energy
+            curEnergy -= Time.deltaTime;
+            if (curEnergy<0)
+                curEnergy = 0;
+
+                curPullForce += (curEnergy/MaxEnergy)*ForceIncreasement * Time.deltaTime;
+
+            //Calculate Pull Force
             Vector2 force = transform.position-moon.transform.position;
             force=force.normalized;
-            float forceIndex =curPullForce*rig.mass*moon.GetComponent<Rigidbody2D>().mass /2* Mathf.Log(Vector2.Distance(transform.position, moon.transform.position));
+            float forceIndex =Mathf.Log(curEnergy/MaxEnergy*3+1) *curPullForce*rig.mass*moon.GetComponent<Rigidbody2D>().mass /2* Mathf.Log(Vector2.Distance(transform.position, moon.transform.position));
             
             if (Vector2.Distance(moon.transform.position, transform.position) <= 1)//Prevent throw the moon too far
             {
@@ -66,9 +85,18 @@ public class PlayerControl : MonoBehaviour
         }
         else
         {
+            //Restore Energy
+            if(curEnergy<MaxEnergy)
+                curEnergy +=EnergyRecoverSpeed*Time.deltaTime;
+
             moon.isPulling = false;
             curPullForce = StartPullForce;
         }
+
+        //Set Light intense
+        selfLight.intensity = curEnergy / MaxEnergy;
+        coneLight.intensity = curEnergy / MaxEnergy;
+
     }
     void GetInput()
     {

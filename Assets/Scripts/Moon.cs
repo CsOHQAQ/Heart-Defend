@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,11 +13,14 @@ public class Moon : MonoBehaviour
     public float FullMoonIndex = 0.1f;
     public float FullMoonMaskPosition=3.8f;
     public float FullMoonLightRadius = 25f;
-
+    public bool isStucked;
 
     GameObject maskGO;
     Vector3 lastPos;
     Light2D moonLight;
+    SpriteRenderer moonSprite;
+    SpriteRenderer moonNoColorSprite;
+    float stuckFriction;
 
     private void Start()
     {
@@ -25,9 +29,16 @@ public class Moon : MonoBehaviour
         moonLight = GetComponent<Light2D>();
         maskGO = transform.Find("Mask").gameObject;
         lastPos=this.transform.position;
+
+        moonSprite = transform.Find("Sprite").GetComponent<SpriteRenderer>();
+        moonNoColorSprite = transform.Find("Sprite NoColor").GetComponent<SpriteRenderer>();
+
     }
     private void Update()
     {
+        //DEBUG ONLY
+        RefreshFullMoonIndex(FullMoonIndex);
+
         if (!isPulling)
         {
             Debug.Log($"Moon Stopping, cur speed {rig.velocity.magnitude}");
@@ -47,12 +58,25 @@ public class Moon : MonoBehaviour
     }
 
 
-    public void SetFullMoonIndex(float index)
+    public void RefreshFullMoonIndex(float index)
     {
-        if(index<0) index = 0; 
-        if(index>1) index = 1;  
+        index = Mathf.Clamp(index, 0,1);
 
+        FullMoonIndex = index;
+        //Set Mask Position 
+        maskGO.transform.localPosition = new Vector2(FullMoonMaskPosition*FullMoonIndex,0); 
+        //Set Sprite 
+        moonSprite.color = new Color(moonSprite.color.r, moonSprite.color.g, moonSprite.color.b,FullMoonIndex);
+        moonNoColorSprite.color = new Color(moonNoColorSprite.color.r, moonNoColorSprite.color.g, moonNoColorSprite.color.b, 1-FullMoonIndex);
+        //Set Light
+        moonLight.intensity = FullMoonIndex*5+0.5f;
+        moonLight.pointLightOuterRadius = (FullMoonLightRadius-6)*FullMoonIndex+6;  //[6, FollMoonLightRadius]
+        moonLight.falloffIntensity = (1 - FullMoonIndex) * 0.3f + 0.2f; //[0.2,0.5]
 
+    }
+
+    public void OnBeingPull(Vector2 pullForce)
+    {
 
     }
 }
