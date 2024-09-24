@@ -61,7 +61,7 @@ public class PlayerControl : MonoBehaviour
         }
 
 
-        if(player.GetButton("Pull")&&curEnergy>0)
+        if(!GameControl.Game.isFullMoon&&player.GetButton("Pull")&&curEnergy>0)
         {
             //Consume Energy
             curEnergy -= Time.deltaTime;
@@ -79,9 +79,7 @@ public class PlayerControl : MonoBehaviour
             {
                 forceIndex = Vector2.Distance(moon.transform.position, transform.position) * CloseRangePullForce;
             }
-
-            moon.GetComponent<Rigidbody2D>().AddForce(force  * forceIndex * Time.deltaTime);
-            moon.isPulling= true;
+            moon.OnBeingPull(force * forceIndex * Time.deltaTime);
         }
         else
         {
