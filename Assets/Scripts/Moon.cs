@@ -10,6 +10,7 @@ public class Moon : MonoBehaviour
     public Rigidbody2D rig;
     public float Friction;
     public float OverSpeedLimit;
+    public float InitFullMoonIndex = 0.3f;
     public float FullMoonIndex = 0.1f;
     public float FullMoonMaskPosition=3.8f;
     public float FullMoonLightRadius = 25f;
@@ -21,6 +22,7 @@ public class Moon : MonoBehaviour
     SpriteRenderer moonSprite;
     SpriteRenderer moonNoColorSprite;
     float stuckFriction;
+    float stuckPullingCount;
     float nextMoonIndex;
     float posFMIndex;
 
@@ -28,13 +30,13 @@ public class Moon : MonoBehaviour
     {
         isPulling = false;
         rig = GetComponent<Rigidbody2D>();
-        moonLight = GetComponent<Light2D>();
+        moonLight = GetComponentInChildren<Light2D>();
         maskGO = transform.Find("Mask").gameObject;
-        lastPos=this.transform.position;
+        lastPos=transform.position;
         nextMoonIndex = FullMoonIndex;
         moonSprite = transform.Find("Sprite").GetComponent<SpriteRenderer>();
         moonNoColorSprite = transform.Find("Sprite NoColor").GetComponent<SpriteRenderer>();
-
+        nextMoonIndex = InitFullMoonIndex;
     }
     private void Update()
     {
@@ -59,7 +61,7 @@ public class Moon : MonoBehaviour
         }
         lastPos = transform.position;
 
-        FullMoonIndex = Mathf.MoveTowards(FullMoonIndex, nextMoonIndex, Time.deltaTime / 0.5f);
+        FullMoonIndex = Mathf.MoveTowards(FullMoonIndex, nextMoonIndex, Time.deltaTime / 1f);
         Debug.Log($"Next Moon Index{nextMoonIndex}");
         RefreshFullMoonIndex();
 
@@ -85,6 +87,9 @@ public class Moon : MonoBehaviour
         moonSprite.color = new Color(moonSprite.color.r, moonSprite.color.g, moonSprite.color.b,FullMoonIndex);
         moonNoColorSprite.color = new Color(moonNoColorSprite.color.r, moonNoColorSprite.color.g, moonNoColorSprite.color.b, 1-FullMoonIndex);
         //Set Light
+        
+        moonLight.transform.localPosition = transform.Find("Mask").localPosition/2-new Vector3(transform.Find("Sprite").GetComponent<CircleCollider2D>().radius,0);
+        
         moonLight.intensity = FullMoonIndex*5+0.5f;
         moonLight.pointLightOuterRadius = (FullMoonLightRadius-6)*FullMoonIndex+6;  //[6, FollMoonLightRadius]
         moonLight.falloffIntensity = (1 - FullMoonIndex) * 0.3f + 0.2f; //[0.2,0.5]
@@ -94,6 +99,11 @@ public class Moon : MonoBehaviour
     public void SetStuckForce(float f)
     {
         stuckFriction = f;
+    }
+
+    public void GetStar()
+    {
+        nextMoonIndex += (1f - InitFullMoonIndex) / GameControl.Game.StarNum;
     }
 
     /// <summary>
@@ -106,30 +116,56 @@ public class Moon : MonoBehaviour
 
         if(pullForce.magnitude>stuckFriction*Time.deltaTime)
         {
+            stuckPullingCount = 0;
             //rig.AddForce(pullForce.normalized*(pullForce.magnitude- stuckFriction * Time.deltaTime));
             rig.AddForce(pullForce.normalized*(pullForce.magnitude));
         }
         else
         {
+            stuckPullingCount+=Time.deltaTime;
 
         }
     }
 
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         Debug.Log($"Collision {collision.name}");
+
+
         if (collision.tag=="DustCloud")
-        {            
-            SetStuckForce(collision.GetComponent<DustCloud>().StaticFriction);
+        {
+            /*
+            bool flag = false;
+            foreach (var point in collision.GetComponent<PolygonCollider2D>().points) 
+            {
+                if(Vector2.Distance(point,transform.position)<GetComponent<CircleCollider2D>().radius&&Vector2.Distance(point, transform.Find("Mask").transform.position) > GetComponent<CircleCollider2D>().radius)
+                {
+                    Debug.Log("In!");
+                    flag = true;
+                    break;
+                }
+            }
+
+            if(flag)
+
+            */
+                SetStuckForce(collision.GetComponent<DustCloud>().StaticFriction);
         }
 
         if (collision.tag == "Star")
         {
             Star star = collision.GetComponent<Star>();
+            bool flag = false; 
+            if (Vector2.Distance(star.transform.position, transform.position) < GetComponent<CircleCollider2D>().radius && Vector2.Distance(star.transform.position, transform.Find("Mask").transform.position) > GetComponent<CircleCollider2D>().radius)
+            {
+                flag = true;
+            }
+
             if (!star.isLit)
             {
                 star.Lit();
-                nextMoonIndex += 1f / GameControl.Game.StarNum;
+                nextMoonIndex += (1f-InitFullMoonIndex) / GameControl.Game.StarNum;
             }
         }
 

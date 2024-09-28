@@ -13,13 +13,16 @@ public class Star : MonoBehaviour
     AudioSource sound;    
     Light2D light2D;
 
+    List<GameObject> inTriggerList;
+
     bool liting;
 
     public void Init(AudioClip clip)
     {
         isLit = false;
         liting = false;
-        
+        inTriggerList = new List<GameObject>();
+
         sound = GetComponentInChildren<AudioSource>();
         light2D = GetComponentInChildren<Light2D>();
         sound.clip = clip;
@@ -41,5 +44,45 @@ public class Star : MonoBehaviour
             light2D.falloffIntensity = Mathf.Lerp(light2D.falloffIntensity, 0.5f, LitSpeed * Time.deltaTime);
         }
 
+
+        bool isMoonIn = false, isMaskIn = false;
+        foreach (GameObject obj in inTriggerList)
+        {
+            if (obj.tag == "Moon")
+                isMoonIn = true;
+            if (obj.tag == "MoonMask")
+                isMaskIn = true;
+        }
     }
+
+    /*
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (!inTriggerList.Contains(collision.gameObject))
+            inTriggerList.Add(collision.gameObject);
+        if (collision.tag == "Moon")
+        {
+            bool flag = false;
+            foreach (var point in GetComponent<PolygonCollider2D>().points)
+            {
+                if (Vector2.Distance(point,FindAnyObjectByType))
+                {
+
+                }
+            }
+            
+        }
+
+
+    }
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        inTriggerList.Remove(collision.gameObject);
+
+    }
+    */
 }

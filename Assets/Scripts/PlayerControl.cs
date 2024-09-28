@@ -6,6 +6,7 @@ using Unity.VisualScripting;
 using System.Data.Common;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using System.Runtime.CompilerServices;
 
 public class PlayerControl : MonoBehaviour
 {
@@ -22,6 +23,8 @@ public class PlayerControl : MonoBehaviour
     public float MaxEnergy;
     public float EnergyRecoverSpeed;
 
+    public bool UsingNewPullMech=false;
+    public float MaxCharingTime = 3f;
 
     Light2D selfLight;
     Light2D coneLight;
@@ -30,6 +33,8 @@ public class PlayerControl : MonoBehaviour
     Player player;
     Moon moon;
     float curEnergy;
+
+    float curPullChargeCount;
     
 
     // Start is called before the first frame update
@@ -41,6 +46,7 @@ public class PlayerControl : MonoBehaviour
 
         selfLight=transform.Find("Self Light").GetComponentInChildren<Light2D>();
         coneLight=transform.Find("Cone Light").GetComponent<Light2D>();
+        curEnergy = MaxEnergy;
     }
 
     // Update is called once per frame
@@ -50,6 +56,7 @@ public class PlayerControl : MonoBehaviour
                
         if (isMoving)
         {
+            rig.drag = 0;
             float targetAngle = Vector2.SignedAngle(Vector2.right, targetFacing);
             Vector3 v = transform.eulerAngles;
             transform.eulerAngles = new Vector3(0, 0, Mathf.MoveTowardsAngle(v.z, targetAngle, RotateSpeed * Time.deltaTime));
@@ -57,32 +64,77 @@ public class PlayerControl : MonoBehaviour
         }
         else//Stopping
         {
-            rig.velocity = Vector2.MoveTowards(rig.velocity,Vector2.zero,Acclerate*Time.deltaTime/4);
+            rig.drag = Acclerate / (rig.velocity.magnitude+1f);
+            //rig.velocity = Vector2.MoveTowards(rig.velocity,Vector2.zero,Acclerate*Time.deltaTime/Mathf.Log(1+ rig.velocity.magnitude));
         }
 
 
         if(!GameControl.Game.isFullMoon&&player.GetButton("Pull")&&curEnergy>0)
         {
-            //Consume Energy
-            curEnergy -= Time.deltaTime;
-            if (curEnergy<0)
-                curEnergy = 0;
-
-                curPullForce += (curEnergy/MaxEnergy)*ForceIncreasement * Time.deltaTime;
-
-            //Calculate Pull Force
-            Vector2 force = transform.position-moon.transform.position;
-            force=force.normalized;
-            float forceIndex =Mathf.Log(curEnergy/MaxEnergy*3+1) *curPullForce*rig.mass*moon.GetComponent<Rigidbody2D>().mass /2* Mathf.Log(Vector2.Distance(transform.position, moon.transform.position));
-            
-            if (Vector2.Distance(moon.transform.position, transform.position) <= 1)//Prevent throw the moon too far
+            if (UsingNewPullMech)
             {
-                forceIndex = Vector2.Distance(moon.transform.position, transform.position) * CloseRangePullForce;
+                curPullChargeCount += Time.deltaTime;
+                selfLight.intensity += 3*Time.deltaTime;
+                selfLight.pointLightOuterRadius += 2 * Time.deltaTime;
+                //Randomer rnd = new Randomer();
+                //transform.position += new Vector2();
+                if (curPullChargeCount>=MaxCharingTime*curEnergy/MaxEnergy)
+                {
+                    Debug.Log("Overcharged!");
+                    curEnergy = 0;
+                    curPullChargeCount = 0;
+                }
+
             }
-            moon.OnBeingPull(force * forceIndex * Time.deltaTime);
+            else
+            {
+                //Consume Energy
+                curEnergy -= Time.deltaTime;
+                if (curEnergy < 0)
+                    curEnergy = 0;
+
+                curPullForce += (curEnergy / MaxEnergy) * ForceIncreasement * Time.deltaTime;
+
+                //Calculate Pull Force
+                Vector2 force = transform.position - moon.transform.position;
+                force = force.normalized;
+                float forceIndex = Mathf.Log(curEnergy / MaxEnergy * 3 + 1) * curPullForce * rig.mass * moon.GetComponent<Rigidbody2D>().mass / 2 * Mathf.Log(Vector2.Distance(transform.position, moon.transform.position));
+
+                if (Vector2.Distance(moon.transform.position, transform.position) <= 1)//Prevent throw the moon too far
+                {
+                    forceIndex = Vector2.Distance(moon.transform.position, transform.position) * CloseRangePullForce;
+                }
+                moon.OnBeingPull(force * forceIndex * Time.deltaTime);
+            }
+            
+            
         }
         else
         {
+            if (UsingNewPullMech)
+            {
+                if (curPullChargeCount > 0)
+                {
+                    //Calculate Pull Force
+                    Vector2 force = transform.position - moon.transform.position;
+                    force = force.normalized;
+                    float forceIndex = curPullChargeCount*400000f+200000f;
+
+
+
+                    if (Vector2.Distance(moon.transform.position, transform.position) <= 1)//Prevent throw the moon too far
+                    {
+                        forceIndex = Vector2.Distance(moon.transform.position, transform.position) * CloseRangePullForce;
+                    }
+
+                    Debug.Log($"Released at {forceIndex}!");
+                    moon.OnBeingPull(force * forceIndex * Time.deltaTime);
+
+                    curEnergy -= curPullChargeCount * MaxEnergy / MaxCharingTime;
+                    curPullChargeCount = 0;
+                }
+            }
+
             //Restore Energy
             if(curEnergy<MaxEnergy)
                 curEnergy +=EnergyRecoverSpeed*Time.deltaTime;
@@ -92,12 +144,26 @@ public class PlayerControl : MonoBehaviour
         }
 
         //Set Light intense
-        selfLight.intensity = curEnergy / MaxEnergy;
-        coneLight.intensity = curEnergy / MaxEnergy;
+        if (!UsingNewPullMech)
+        {
+            selfLight.intensity = curEnergy / MaxEnergy;
+            selfLight.pointLightOuterRadius = 8f * curEnergy / MaxEnergy;
+        }
+        else
+        {
+            if (curPullChargeCount <= 0.05f)
+            {
+                selfLight.intensity = curEnergy / MaxEnergy;
+                selfLight.pointLightOuterRadius = 8f * curEnergy / MaxEnergy;
+            }
+
+        }
+        //coneLight.intensity = curEnergy / MaxEnergy;
 
     }
     void GetInput()
     {
+
         if (Mathf.Abs(player.GetAxis("MoveX")) < 0.05f && Mathf.Abs(player.GetAxis("MoveY")) < 0.05f)
         {
             isMoving = false;

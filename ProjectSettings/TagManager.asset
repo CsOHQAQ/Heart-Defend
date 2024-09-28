@@ -8,6 +8,7 @@ TagManager:
   - Moon
   - Star
   - DustCloud
+  - MoonMask
   layers:
   - Default
   - TransparentFX
@@ -20,7 +21,7 @@ TagManager:
   - Rock
   - Star
   - DustCloud
-  - 
+  - MoonMask
   - 
   - 
   - 

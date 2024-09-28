@@ -123,6 +123,7 @@ public class GameControl:MonoBehaviour
 
             DustCloud nextCloud = Instantiate(DustCloudPrefab).GetComponent<DustCloud>();
             nextCloud.transform.position = nextPos;
+            nextCloud.Init();
             DustCloudList.Add(nextCloud);
         }
         if (DustCloudList.Count < generateNum)

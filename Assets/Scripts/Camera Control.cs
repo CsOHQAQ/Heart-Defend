@@ -58,14 +58,14 @@ public class CameraControl : MonoBehaviour
         else
         {
             transform.position=Vector3.MoveTowards(transform.position,new Vector3(0,0,-10), posFMIndex * Time.deltaTime);
-            cam.orthographicSize = Mathf.MoveTowards(cam.orthographicSize,65f,sizeFMIndex*Time.deltaTime);
+            cam.orthographicSize = Mathf.MoveTowards(cam.orthographicSize,90f,sizeFMIndex*Time.deltaTime);
         }
     }
 
     public void FullMoon()
     {
         posFMIndex = Vector3.Distance(transform.position, new Vector3(0, 0, -10)) / (GameControl.Game.FullMoonAnimationTime);
-        sizeFMIndex=(65f-cam.orthographicSize)/GameControl.Game.FullMoonAnimationTime;
+        sizeFMIndex=(90f-cam.orthographicSize)/GameControl.Game.FullMoonAnimationTime;
         isFullMoon = true;
     }
 }
