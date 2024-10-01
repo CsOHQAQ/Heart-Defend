@@ -1,20 +1,32 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
 public class Moon : MonoBehaviour
 {
     public bool isPulling = false;
+    [HideInInspector]
     public Rigidbody2D rig;
-    public float Friction;
+    //public float Friction;
     public float OverSpeedLimit;
+    public float ShakeStrength;
+    [Header("Wander Settings")]
+    public float WanderRadius;
+    public float WanderStepLength;
+    public float WanderSpeed;
+
+
+    [Header("Full Moon Settings")]
     public float InitFullMoonIndex = 0.3f;
     public float FullMoonIndex = 0.1f;
     public float FullMoonMaskPosition=3.8f;
-    public float FullMoonLightRadius = 25f;
+    public float FullMoonLightRadius = 25f;    
     public Vector2 FullMoonPos;
+    
 
     GameObject maskGO;
     Vector3 lastPos;
@@ -25,6 +37,11 @@ public class Moon : MonoBehaviour
     float stuckPullingCount;
     float nextMoonIndex;
     float posFMIndex;
+    float wanderTimer;
+    GameObject wanderTarget;
+    Vector2 wanderPos;
+    Vector2 beforeShakePos;
+
 
     private void Start()
     {
@@ -37,15 +54,39 @@ public class Moon : MonoBehaviour
         moonSprite = transform.Find("Sprite").GetComponent<SpriteRenderer>();
         moonNoColorSprite = transform.Find("Sprite NoColor").GetComponent<SpriteRenderer>();
         nextMoonIndex = InitFullMoonIndex;
+        wanderTimer= 0;
+        
+        SetWanderTarget();
+        SetNextWanderPosition();
     }
     private void Update()
     {
         if (!isPulling)
         {
-            rig.velocity = Vector2.MoveTowards(rig.velocity,Vector2.zero,Friction* Time.deltaTime);
+            //rig.velocity = Vector2.MoveTowards(rig.velocity,Vector2.zero,Friction* Time.deltaTime);
+            wanderTimer += Time.deltaTime;
+        }
+        else
+        {
+            wanderTimer = 0;
         }
 
-        if(stuckFriction > 0)
+        //Check wander
+        if (wanderTimer > 0.5f)
+        {
+            Vector2 speed = (wanderPos - (Vector2)transform.position).normalized * WanderSpeed;
+            rig.velocity = Vector2.MoveTowards(rig.velocity, speed, Time.deltaTime / 0.5f);
+            Debug.DrawLine(transform.position,wanderPos,Color.red);
+            if (Vector2.Distance(transform.position,wanderPos)<1f)
+            {
+                Debug.Log("Moon have wander to the target");
+                if (Vector2.Distance(transform.position, wanderTarget.transform.position) < 5f)
+                    SetWanderTarget();
+                SetNextWanderPosition();
+            }
+        }
+
+        if (stuckFriction > 0)
         {
             rig.velocity = Vector2.MoveTowards(rig.velocity, Vector2.zero, stuckFriction/100 * Time.deltaTime);// subdivide 50 to adjust the index
         }
@@ -59,10 +100,10 @@ public class Moon : MonoBehaviour
         {
             transform.position = lastPos+(transform.position-lastPos).normalized*OverSpeedLimit;
         }
-        lastPos = transform.position;
+        lastPos = transform.position;   
 
-        FullMoonIndex = Mathf.MoveTowards(FullMoonIndex, nextMoonIndex, Time.deltaTime / 1f);
-        Debug.Log($"Next Moon Index{nextMoonIndex}");
+        FullMoonIndex = Mathf.MoveTowards(FullMoonIndex, nextMoonIndex, Time.deltaTime / 2f);
+
         RefreshFullMoonIndex();
 
         if (FullMoonIndex >= 1f)
@@ -94,16 +135,29 @@ public class Moon : MonoBehaviour
         moonLight.pointLightOuterRadius = (FullMoonLightRadius-6)*FullMoonIndex+6;  //[6, FollMoonLightRadius]
         moonLight.falloffIntensity = (1 - FullMoonIndex) * 0.3f + 0.2f; //[0.2,0.5]
 
+        UpdatePolygonColliderChange();
+
     }
 
     public void SetStuckForce(float f)
     {
         stuckFriction = f;
+        if (f > 0)
+        {
+            rig.drag = 100;
+
+            beforeShakePos = transform.position;
+        }
+        else
+        {
+            rig.drag = 1;
+        }
     }
 
     public void GetStar()
     {
         nextMoonIndex += (1f - InitFullMoonIndex) / GameControl.Game.StarNum;
+        
     }
 
     /// <summary>
@@ -113,18 +167,31 @@ public class Moon : MonoBehaviour
     public void OnBeingPull(Vector2 pullForce)
     {       
         isPulling = true;
-
-        if(pullForce.magnitude>stuckFriction*Time.deltaTime)
+        if (stuckFriction > 0)
         {
-            stuckPullingCount = 0;
-            //rig.AddForce(pullForce.normalized*(pullForce.magnitude- stuckFriction * Time.deltaTime));
-            rig.AddForce(pullForce.normalized*(pullForce.magnitude));
+            if (pullForce.magnitude > stuckFriction * Time.deltaTime || stuckPullingCount > 2f)
+            {
+                stuckPullingCount = 0;
+
+                rig.drag = 0;
+                rig.AddForce(pullForce.normalized * stuckFriction*5f);
+            }
+            else
+            {
+                Randomer rnd = new Randomer();
+                float angle = rnd.nextFloat();
+                if (rnd.nextFloat() > 0.5f)
+                    return;
+                Vector2 shakePos = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * pullForce.magnitude / (stuckFriction * Time.deltaTime) * (ShakeStrength + 0.2f * stuckPullingCount);
+                transform.position = (Vector2)transform.position + shakePos;
+                stuckPullingCount += Time.deltaTime;
+
+            }
         }
         else
         {
-            stuckPullingCount+=Time.deltaTime;
-
-        }
+            rig.AddForce(pullForce);
+        }       
     }
 
 
@@ -139,33 +206,28 @@ public class Moon : MonoBehaviour
             bool flag = false;
             foreach (var point in collision.GetComponent<PolygonCollider2D>().points) 
             {
-                if(Vector2.Distance(point,transform.position)<GetComponent<CircleCollider2D>().radius&&Vector2.Distance(point, transform.Find("Mask").transform.position) > GetComponent<CircleCollider2D>().radius)
-                {
-                    Debug.Log("In!");
-                    flag = true;
-                    break;
-                }
+                
             }
 
             if(flag)
-
-            */
-                SetStuckForce(collision.GetComponent<DustCloud>().StaticFriction);
+            */            
+            SetStuckForce(collision.GetComponent<DustCloud>().StaticFriction);
         }
 
         if (collision.tag == "Star")
         {
             Star star = collision.GetComponent<Star>();
+            /*
             bool flag = false; 
             if (Vector2.Distance(star.transform.position, transform.position) < GetComponent<CircleCollider2D>().radius && Vector2.Distance(star.transform.position, transform.Find("Mask").transform.position) > GetComponent<CircleCollider2D>().radius)
             {
                 flag = true;
             }
-
+            */
             if (!star.isLit)
             {
                 star.Lit();
-                nextMoonIndex += (1f-InitFullMoonIndex) / GameControl.Game.StarNum;
+                GetStar();                
             }
         }
 
@@ -177,6 +239,75 @@ public class Moon : MonoBehaviour
         {
             SetStuckForce(0);
         }
+    }
+
+    private void UpdatePolygonColliderChange()
+    {
+        PolygonCollider2D poly=GetComponent<PolygonCollider2D>();
+
+        Vector2[] nPath =new Vector2[poly.points.Length];
+        poly.points.CopyTo(nPath,0);        
+
+        nPath[0].x = Mathf.Abs(poly.points[4].x) * (FullMoonIndex * 2 - 1);
+        nPath[1].x = Mathf.Abs(poly.points[3].x)*(FullMoonIndex*2-1);
+        nPath[7].x = Mathf.Abs(poly.points[5].x) * (FullMoonIndex * 2 - 1);
+
+        poly.SetPath(0, nPath);
+    }
+
+    void SetWanderTarget()
+    {
+        Randomer rnd = new Randomer();
+        float choice = rnd.nextFloat();
+        if (choice<FullMoonIndex)//Choose Star
+        {
+            Star nStar = null;
+            float dis = 99999999f;
+            foreach(Star star in GameControl.Game.StarList)
+            {
+                if (Vector2.Distance(star.transform.position, transform.position) < dis && !star.isLit)
+                {
+                    if (Vector2.Distance(star.transform.position, wanderPos) < 5f)
+                        continue;
+                    nStar= star;
+                    dis=Vector2.Distance(star.transform.position, transform.position);
+                }
+            }
+            if (nStar == null)
+            {
+                Debug.Log("No star finded as next target!");
+            }
+            wanderTarget = nStar.gameObject;
+        }
+
+        else//Choose cloud
+        {
+            DustCloud nCloud = null;
+            float dis = 99999999f;
+            foreach (DustCloud cloud in GameControl.Game.DustCloudList)
+            {
+                if (Vector2.Distance(cloud.transform.position, transform.position) < dis)
+                {
+                    if (Vector2.Distance(cloud.transform.position, wanderPos) < 5f)
+                        continue;
+                    nCloud = cloud;
+                    dis = Vector2.Distance(cloud.transform.position, transform.position);
+                }
+            }
+            if (nCloud == null)
+            {
+                Debug.Log("No star finded as next target!");
+            }
+            wanderTarget = nCloud.gameObject;
+        }
+    }
+
+    void SetNextWanderPosition()
+    {        
+        Vector2 center = Vector2.MoveTowards(transform.position,wanderTarget.transform.position,WanderStepLength);
+        Randomer rnd= new Randomer();
+        float angle=rnd.nextFloat()*2*Mathf.PI,r=rnd.nextFloat()*WanderRadius;
+        wanderPos=new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*r+center;
     }
 
 }

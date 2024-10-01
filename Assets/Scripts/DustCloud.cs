@@ -30,16 +30,17 @@ public class DustCloud : MonoBehaviour
             PlayThunder();
         }
 
-        bool isMoonIn=false, isMaskIn=false;
+        bool InMoon=false, InMask=false;
         foreach (GameObject obj in inTriggerList) 
         {
             if(obj.tag=="Moon")
-                isMoonIn = true;
+                InMoon = true;
             if(obj.tag=="MoonMask")
-                isMaskIn = true;
+                InMask = true;
         }
-        if (isMoonIn && !isMaskIn)
+        if (!(InMask&&InMoon)&&InMoon)
         {
+            Debug.Log("Collide!");
             if (!isStuckingMoon)
             {
                 GameControl.Game.moon.SetStuckForce(StaticFriction);

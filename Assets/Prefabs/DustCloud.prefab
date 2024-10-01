@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 6717410314965502768}
   - component: {fileID: 338484890098665563}
   - component: {fileID: 6677233131690795128}
-  - component: {fileID: 9211952193219241358}
   m_Layer: 10
   m_Name: DustCloud
   m_TagString: DustCloud
@@ -57,7 +56,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 808d65ea1b39c3b458a60e941b50885b, type: 2}
+  - {fileID: 2100000, guid: 5944440a4c015f648a3534f8c984260e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -101,7 +100,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fb5439c627bc1240928fd15f401fb16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StaticFriction: 3000
+  StaticFriction: 5000
 --- !u!60 &6677233131690795128
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -134,7 +133,7 @@ PolygonCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.4, y: 0.4}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -150,41 +149,6 @@ PolygonCollider2D:
       - {x: 1.8337704, y: -0.6069218}
       - {x: -0.2006636, y: 1.3208331}
   m_UseDelaunayMesh: 0
---- !u!58 &9211952193219241358
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3220812860525184895}
-  m_Enabled: 0
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0.4546484, y: 0.48759386}
-  serializedVersion: 2
-  m_Radius: 1.5497259
 --- !u!1 &7299530486457198999
 GameObject:
   m_ObjectHideFlags: 0

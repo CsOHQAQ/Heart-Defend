@@ -35,10 +35,11 @@ public class GameControl:MonoBehaviour
     public float CloestObjDistance;
     [HideInInspector]
     public List<Star> StarList;
+    [HideInInspector]
+    public List<DustCloud> DustCloudList;
 
     public int CloudNum;
     public GameObject DustCloudPrefab;
-    List<DustCloud> DustCloudList;
     
     public List<AudioClip> AudioClipList;
 
@@ -180,6 +181,8 @@ public class GameControl:MonoBehaviour
         bgFullMoonIndex = (1f - background.color.a) / FullMoonAnimationTime;
         lFullMoonIndex = (1f - globalLight.intensity) / FullMoonAnimationTime;
         isFullMoon = true;
-
     }
+
+    
+
 }

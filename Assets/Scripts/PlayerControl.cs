@@ -23,18 +23,21 @@ public class PlayerControl : MonoBehaviour
     public float MaxEnergy;
     public float EnergyRecoverSpeed;
 
+    public float PullCoolDown;
+    
     public bool UsingNewPullMech=false;
     public float MaxCharingTime = 3f;
 
     Light2D selfLight;
-    Light2D coneLight;
+    Light2D haloLight;
     Rigidbody2D rig;
     bool isMoving=false;
     Player player;
     Moon moon;
     float curEnergy;
-
+    float coolDownTimer;
     float curPullChargeCount;
+    bool isPulling;
     
 
     // Start is called before the first frame update
@@ -45,8 +48,9 @@ public class PlayerControl : MonoBehaviour
         moon = GameControl.Game.moon;
 
         selfLight=transform.Find("Self Light").GetComponentInChildren<Light2D>();
-        coneLight=transform.Find("Cone Light").GetComponent<Light2D>();
+        haloLight = transform.Find("Halo").GetComponent<Light2D>();
         curEnergy = MaxEnergy;
+        isPulling = false;
     }
 
     // Update is called once per frame
@@ -69,8 +73,9 @@ public class PlayerControl : MonoBehaviour
         }
 
 
-        if(!GameControl.Game.isFullMoon&&player.GetButton("Pull")&&curEnergy>0)
+        if(!GameControl.Game.isFullMoon&&player.GetButton("Pull")&&curEnergy>0&&(coolDownTimer<=0f||isPulling))
         {
+            isPulling = true;
             if (UsingNewPullMech)
             {
                 curPullChargeCount += Time.deltaTime;
@@ -104,6 +109,7 @@ public class PlayerControl : MonoBehaviour
                 {
                     forceIndex = Vector2.Distance(moon.transform.position, transform.position) * CloseRangePullForce;
                 }
+                Debug.Log($"Cur Pull force: {forceIndex.ToString("0.00")}");
                 moon.OnBeingPull(force * forceIndex * Time.deltaTime);
             }
             
@@ -135,10 +141,16 @@ public class PlayerControl : MonoBehaviour
                 }
             }
 
-            //Restore Energy
+            //Restore Energy 
             if(curEnergy<MaxEnergy)
                 curEnergy +=EnergyRecoverSpeed*Time.deltaTime;
 
+            if (isPulling)
+            {
+                isPulling = false;
+                coolDownTimer = PullCoolDown;
+            }
+            if (coolDownTimer > 0) coolDownTimer -= Time.deltaTime;
             moon.isPulling = false;
             curPullForce = StartPullForce;
         }
@@ -148,13 +160,16 @@ public class PlayerControl : MonoBehaviour
         {
             selfLight.intensity = curEnergy / MaxEnergy;
             selfLight.pointLightOuterRadius = 8f * curEnergy / MaxEnergy;
+            haloLight.transform.localScale = new Vector3(1, 1, 1) * 2 * curEnergy / MaxEnergy;
+            haloLight.intensity = 3 * curEnergy / MaxEnergy;
         }
         else
         {
             if (curPullChargeCount <= 0.05f)
             {
                 selfLight.intensity = curEnergy / MaxEnergy;
-                selfLight.pointLightOuterRadius = 8f * curEnergy / MaxEnergy;
+                selfLight.pointLightOuterRadius = 8f * curEnergy / MaxEnergy;               
+                
             }
 
         }
