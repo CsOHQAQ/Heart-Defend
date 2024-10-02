@@ -45,7 +45,9 @@ public class Moon : MonoBehaviour
     Vector2 wanderPos;
     Vector2 beforeShakePos;
 
-
+    public AudioSource stuckSound;
+    public AudioSource starPickup;
+    
 
     private void Start()
     {
@@ -62,6 +64,7 @@ public class Moon : MonoBehaviour
         
         SetWanderTarget();
         SetNextWanderPosition();
+
     }
     private void Update()
     {
@@ -253,6 +256,7 @@ public class Moon : MonoBehaviour
         {
             stuckPullingCount = 0;
             SetStuckForce(collision.GetComponent<DustCloud>().StaticFriction);
+            stuckSound.Play();
         }
 
         if (collision.tag == "Star")
@@ -268,7 +272,8 @@ public class Moon : MonoBehaviour
             if (!star.isLit)
             {
                 star.Lit();
-                GetStar();                
+                GetStar();
+                starPickup.Play();
             }
         }
 

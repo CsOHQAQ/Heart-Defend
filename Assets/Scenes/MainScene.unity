@@ -4491,6 +4491,8 @@ MonoBehaviour:
   player: {fileID: 0}
   MapHeight: 0
   MapWidth: 0
+  isTotorial: 0
+  Totorial: {fileID: 0}
   StarPrefab: {fileID: 6634420379136826396, guid: d03126ef4eeeb1641b6d728d4dcd487f,
     type: 3}
   StarNum: 5
@@ -4506,8 +4508,11 @@ MonoBehaviour:
   - {fileID: 1544920781793752801, guid: 15bef2f51010bd3498b2ec9db1a218ad, type: 3}
   - {fileID: 4165751058874484250, guid: c0294e889e6d8594ca399b3546c82cdb, type: 3}
   AudioClipList:
-  - {fileID: 8300000, guid: 42f51d83f981ff54bb0f2ea8582d51d5, type: 3}
-  - {fileID: 8300000, guid: 5a2a61d766e8a2c488440abf111288b9, type: 3}
+  - {fileID: 8300000, guid: 680ff161dea62254f854f588ef913cb5, type: 3}
+  - {fileID: 8300000, guid: 6599de55ed7459141bd51784e9ff17dc, type: 3}
+  - {fileID: 8300000, guid: df97cdcfb50a9e241b12575e0fb4ca70, type: 3}
+  - {fileID: 8300000, guid: 07b62ed4a8d73f34599306f5290044d5, type: 3}
+  - {fileID: 8300000, guid: 950e62a011927444eb259ea9ec672a5d, type: 3}
   FullMoonAnimationTime: 3
   isFullMoon: 0
 --- !u!4 &1582395753
@@ -4857,6 +4862,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 939802167097342291, guid: f661cb78265df694daa979753a0ea6b5,
+        type: 3}
+      propertyPath: m_audioClip
+      value: 
+      objectReference: {fileID: 8300000, guid: f44c4cf2e4df04148aadbaa754c57dc0, type: 3}
     - target: {fileID: 4529901440240685235, guid: f661cb78265df694daa979753a0ea6b5,
         type: 3}
       propertyPath: m_Name
