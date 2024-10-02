@@ -86,3 +86,6 @@ public class Star : MonoBehaviour
     }
     */
 }
+
+
+//TODO:Star Lit Hint!

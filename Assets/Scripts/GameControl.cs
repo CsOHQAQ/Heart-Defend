@@ -29,6 +29,8 @@ public class GameControl:MonoBehaviour
     public float MapHeight;
     [HideInInspector]
     public float MapWidth;
+    public bool isTotorial;
+    public TotorialController Totorial;
 
     public GameObject StarPrefab;
     public int StarNum;
@@ -40,7 +42,7 @@ public class GameControl:MonoBehaviour
 
     public int CloudNum;
     public GameObject DustCloudPrefab;
-    
+    public List<GameObject> DustCloudPrefabs;
     public List<AudioClip> AudioClipList;
 
     
@@ -83,6 +85,9 @@ public class GameControl:MonoBehaviour
         StarList = new List<Star>();
         GenerateStars(StarNum);
 
+        if (isTotorial)
+            Totorial = GameObject.Find("Totorial Controller").GetComponent<TotorialController>();
+
         isFullMoon = false;
     }
 
@@ -98,6 +103,16 @@ public class GameControl:MonoBehaviour
 
     void GenerateCloud(int generateNum)
     {
+        if (isTotorial)
+        {
+            foreach (var item in GameObject.FindGameObjectsWithTag("DustCloud"))
+            {
+                DustCloudList.Clear();
+                DustCloudList.Add(item.GetComponent<DustCloud>());
+            }
+            return;
+        }
+
         Randomer rnd = new Randomer();
         DustCloudList.Clear();
 
@@ -122,7 +137,17 @@ public class GameControl:MonoBehaviour
             if (!flag)
                 continue;
 
-            DustCloud nextCloud = Instantiate(DustCloudPrefab).GetComponent<DustCloud>();
+            DustCloud nextCloud = null;
+
+            if (DustCloudPrefabs.Count > 0)
+            {
+                int cId = rnd.nextInt(DustCloudPrefabs.Count);
+                nextCloud = Instantiate(DustCloudPrefabs[cId]).GetComponent<DustCloud>();
+            }
+            else
+            {
+                nextCloud = Instantiate(DustCloudPrefab).GetComponent<DustCloud>();
+            }            
             nextCloud.transform.position = nextPos;
             nextCloud.Init();
             DustCloudList.Add(nextCloud);
@@ -133,6 +158,16 @@ public class GameControl:MonoBehaviour
 
     void GenerateStars(int generateNum)
     {
+        if (isTotorial)
+        {
+            foreach (var item in GameObject.FindGameObjectsWithTag("Star"))
+            {
+                StarList.Clear();
+                StarList.Add(item.GetComponent<Star>());
+            }
+            return;
+        }
+
         Randomer rnd=new Randomer();
         StarList.Clear();
 

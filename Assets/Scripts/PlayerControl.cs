@@ -41,7 +41,7 @@ public class PlayerControl : MonoBehaviour
     float curPullChargeCount;
     bool isPulling;
     ParticleSystem pullEffect;
-    
+    float pullIndex=0f;
 
     // Start is called before the first frame update
     void Start()
@@ -109,7 +109,7 @@ public class PlayerControl : MonoBehaviour
                 force = force.normalized;
                 float forceIndex = (curEnergy / MaxEnergy * 3 + 1) * curPullForce * rig.mass * moon.GetComponent<Rigidbody2D>().mass 
                     /( 2 * Mathf.Log(Vector2.Distance(transform.position, moon.transform.position)));
-
+                pullIndex = forceIndex;
                 if (Vector2.Distance(moon.transform.position, transform.position) <= 10)//Prevent throw the moon too far
                 {
                     forceIndex = Vector2.Distance(moon.transform.position, transform.position) * CloseRangePullForce;
@@ -224,6 +224,10 @@ public class PlayerControl : MonoBehaviour
         pullEffect.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
         if (isPulling)
         {
+            var rateOverTime = pullEffect.emission;
+            rateOverTime.rateOverTime= pullIndex/500f;
+            var lifeTime = pullEffect.main;
+            lifeTime.startLifetime=Vector2.Distance(transform.position,moon.transform.position)*0.3f/lifeTime.startSpeed.constant;
             if(!pullEffect.isPlaying)
                 pullEffect.Play();
         }
