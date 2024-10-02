@@ -9,6 +9,7 @@ TagManager:
   - Star
   - DustCloud
   - MoonMask
+  - 2Deffect
   layers:
   - Default
   - TransparentFX
@@ -22,7 +23,7 @@ TagManager:
   - Star
   - DustCloud
   - MoonMask
-  - 
+  - 2Deffect
   - 
   - 
   - 
@@ -45,4 +46,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: 2Deffect
+    uniqueID: 1963188497
     locked: 0
