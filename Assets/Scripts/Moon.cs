@@ -251,15 +251,7 @@ public class Moon : MonoBehaviour
 
         if (collision.tag=="DustCloud")
         {
-            /*
-            bool flag = false;
-            foreach (var point in collision.GetComponent<PolygonCollider2D>().points) 
-            {
-                
-            }
-
-            if(flag)
-            */            
+            stuckPullingCount = 0;
             SetStuckForce(collision.GetComponent<DustCloud>().StaticFriction);
         }
 

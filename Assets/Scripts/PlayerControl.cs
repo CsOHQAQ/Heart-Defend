@@ -40,6 +40,7 @@ public class PlayerControl : MonoBehaviour
     float coolDownTimer;
     float curPullChargeCount;
     bool isPulling;
+    ParticleSystem pullEffect;
     
 
     // Start is called before the first frame update
@@ -53,6 +54,7 @@ public class PlayerControl : MonoBehaviour
         haloLight = transform.Find("Halo").GetComponent<Light2D>();
         curEnergy = MaxEnergy;
         isPulling = false;
+        pullEffect=transform.Find("PullEffect").GetComponent<ParticleSystem>();
     }
 
     // Update is called once per frame
@@ -187,6 +189,8 @@ public class PlayerControl : MonoBehaviour
         }
         //coneLight.intensity = curEnergy / MaxEnergy;
 
+        RefreshPullEffect();
+
     }
     void GetInput()
     {
@@ -212,6 +216,22 @@ public class PlayerControl : MonoBehaviour
             return;
         }
         
+    }
+
+    void RefreshPullEffect()
+    {
+        float angle = Vector2.SignedAngle(Vector2.right, GameControl.Game.moon.transform.position-transform.position);
+        pullEffect.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
+        if (isPulling)
+        {
+            if(!pullEffect.isPlaying)
+                pullEffect.Play();
+        }
+        else
+        {
+            if (pullEffect.isPlaying)
+                pullEffect.Stop();
+        }
     }
 }
 
