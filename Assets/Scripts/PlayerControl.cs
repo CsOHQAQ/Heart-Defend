@@ -28,6 +28,8 @@ public class PlayerControl : MonoBehaviour
     public bool UsingNewPullMech=false;
     public float MaxCharingTime = 3f;
 
+
+
     Light2D selfLight;
     Light2D haloLight;
     Rigidbody2D rig;
@@ -103,13 +105,14 @@ public class PlayerControl : MonoBehaviour
                 //Calculate Pull Force
                 Vector2 force = transform.position - moon.transform.position;
                 force = force.normalized;
-                float forceIndex = Mathf.Log(curEnergy / MaxEnergy * 3 + 1) * curPullForce * rig.mass * moon.GetComponent<Rigidbody2D>().mass / 2 * Mathf.Log(Vector2.Distance(transform.position, moon.transform.position));
+                float forceIndex = (curEnergy / MaxEnergy * 3 + 1) * curPullForce * rig.mass * moon.GetComponent<Rigidbody2D>().mass 
+                    /( 2 * Mathf.Log(Vector2.Distance(transform.position, moon.transform.position)));
 
-                if (Vector2.Distance(moon.transform.position, transform.position) <= 1)//Prevent throw the moon too far
+                if (Vector2.Distance(moon.transform.position, transform.position) <= 10)//Prevent throw the moon too far
                 {
                     forceIndex = Vector2.Distance(moon.transform.position, transform.position) * CloseRangePullForce;
                 }
-                Debug.Log($"Cur Pull force: {forceIndex.ToString("0.00")}");
+                //Debug.Log($"Cur Pull force: {forceIndex.ToString("0.00")},  ");
                 moon.OnBeingPull(force * forceIndex * Time.deltaTime);
             }
             
@@ -158,10 +161,19 @@ public class PlayerControl : MonoBehaviour
         //Set Light intense
         if (!UsingNewPullMech)
         {
-            selfLight.intensity = curEnergy / MaxEnergy;
+            selfLight.intensity = 3*curEnergy / MaxEnergy;
             selfLight.pointLightOuterRadius = 8f * curEnergy / MaxEnergy;
-            haloLight.transform.localScale = new Vector3(1, 1, 1) * 2 * curEnergy / MaxEnergy;
-            haloLight.intensity = 3 * curEnergy / MaxEnergy;
+
+            if (coolDownTimer <= 0)
+            {
+                haloLight.transform.localScale = new Vector3(1, 1, 1) * 2 * curEnergy / MaxEnergy;
+                haloLight.intensity = 5 * curEnergy / MaxEnergy;
+            }
+            else
+            {
+                haloLight.transform.localScale = new Vector3(1, 1, 1) * 2 * curEnergy / MaxEnergy;
+                haloLight.intensity = 5 * curEnergy / MaxEnergy +3* Mathf.Sin((PullCoolDown - coolDownTimer)*Mathf.PI*4/PullCoolDown) ; 
+            }
         }
         else
         {
@@ -202,3 +214,5 @@ public class PlayerControl : MonoBehaviour
         
     }
 }
+
+//TODO: Pulling Effect?

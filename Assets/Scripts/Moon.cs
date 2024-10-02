@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Security;
+using System.Timers;
 using Unity.VisualScripting;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -38,9 +40,11 @@ public class Moon : MonoBehaviour
     float nextMoonIndex;
     float posFMIndex;
     float wanderTimer;
+    float changeTargetTimer;
     GameObject wanderTarget;
     Vector2 wanderPos;
     Vector2 beforeShakePos;
+
 
 
     private void Start()
@@ -71,9 +75,32 @@ public class Moon : MonoBehaviour
             wanderTimer = 0;
         }
 
+        //Random change target every 3s
+        changeTargetTimer += Time.deltaTime;
+        if (changeTargetTimer > 3f&&FullMoonIndex>=0.95f)
+        {
+            changeTargetTimer = 0;
+            SetWanderTarget();
+            SetNextWanderPosition();
+        }
+
+
         //Check wander
+
+        Vector2 speed = (wanderPos - (Vector2)transform.position).normalized * WanderSpeed;
+        rig.velocity = Vector2.MoveTowards(rig.velocity, speed, Time.deltaTime / 0.5f);
+        Debug.DrawLine(transform.position, wanderPos, Color.red);
+        if (Vector2.Distance(transform.position, wanderPos) < 1f)
+        {
+            Debug.Log("Moon have wander to the target");
+            if (Vector2.Distance(transform.position, wanderTarget.transform.position) < 5f)
+                SetWanderTarget();
+            SetNextWanderPosition();
+        }
+
         if (wanderTimer > 0.5f)
         {
+            /*
             Vector2 speed = (wanderPos - (Vector2)transform.position).normalized * WanderSpeed;
             rig.velocity = Vector2.MoveTowards(rig.velocity, speed, Time.deltaTime / 0.5f);
             Debug.DrawLine(transform.position,wanderPos,Color.red);
@@ -84,16 +111,17 @@ public class Moon : MonoBehaviour
                     SetWanderTarget();
                 SetNextWanderPosition();
             }
+            */
         }
 
+        //Check if stucked
         if (stuckFriction > 0)
         {
-            rig.velocity = Vector2.MoveTowards(rig.velocity, Vector2.zero, stuckFriction/100 * Time.deltaTime);// subdivide 50 to adjust the index
-        }
-
-        if (rig.velocity.magnitude > 30f)
+            //rig.velocity = Vector2.MoveTowards(rig.velocity, Vector2.zero, stuckFriction/20 * Time.deltaTime);// subdivide 50 to adjust the index
+        }        
+        if (rig.velocity.magnitude > 60f)
         {
-            rig.velocity = rig.velocity.normalized * 30f;
+            rig.velocity = rig.velocity.normalized * 60f;
         }
 
         if (Vector3.Distance(lastPos, transform.position) > OverSpeedLimit)
@@ -144,20 +172,20 @@ public class Moon : MonoBehaviour
         stuckFriction = f;
         if (f > 0)
         {
-            rig.drag = 100;
-
+            rig.drag = f;
             beforeShakePos = transform.position;
         }
         else
         {
-            rig.drag = 1;
+            rig.drag = 0.75f;
         }
     }
 
     public void GetStar()
     {
         nextMoonIndex += (1f - InitFullMoonIndex) / GameControl.Game.StarNum;
-        
+        if (nextMoonIndex > 0.95f)
+            nextMoonIndex = 1f;
     }
 
     /// <summary>
@@ -169,12 +197,32 @@ public class Moon : MonoBehaviour
         isPulling = true;
         if (stuckFriction > 0)
         {
-            if (pullForce.magnitude > stuckFriction * Time.deltaTime || stuckPullingCount > 2f)
+            //New friction thought
+            if (stuckPullingCount > 2f)
+            {
+                rig.drag  = 0f;
+            }
+            else
+            {
+                Randomer rnd = new Randomer();
+                float angle = rnd.nextFloat();
+                if (rnd.nextFloat() > 0.5f)
+                    return;
+                Vector2 shakePos = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle))* (ShakeStrength + 0.2f * stuckPullingCount);
+                //transform.position = (Vector2)transform.position + shakePos;
+                stuckPullingCount += Time.deltaTime;
+            }
+            rig.AddForce(pullForce);
+
+            //Original friction
+            /*
+            //If pullforce big enough or pulling too long
+            if (pullForce.magnitude > stuckFriction * Time.deltaTime || (stuckPullingCount > 2f&&pullForce.magnitude>100f))
             {
                 stuckPullingCount = 0;
 
-                rig.drag = 0;
-                rig.AddForce(pullForce.normalized * stuckFriction*5f);
+                //rig.drag = 0;
+                rig.AddForce(pullForce);
             }
             else
             {
@@ -187,6 +235,7 @@ public class Moon : MonoBehaviour
                 stuckPullingCount += Time.deltaTime;
 
             }
+            */
         }
         else
         {
@@ -257,6 +306,7 @@ public class Moon : MonoBehaviour
 
     void SetWanderTarget()
     {
+        
         Randomer rnd = new Randomer();
         float choice = rnd.nextFloat();
         if (choice<FullMoonIndex)//Choose Star
@@ -309,5 +359,12 @@ public class Moon : MonoBehaviour
         float angle=rnd.nextFloat()*2*Mathf.PI,r=rnd.nextFloat()*WanderRadius;
         wanderPos=new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*r+center;
     }
+    public void AddMusic()
+    {
 
+    }
 }
+
+
+//TODO: Music Collection
+//TODO: Moon shake bug testing
