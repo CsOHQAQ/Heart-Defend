@@ -47,7 +47,8 @@ public class Moon : MonoBehaviour
 
     public AudioSource stuckSound;
     public AudioSource starPickup;
-    
+    public AudioSource unstuckNoise;
+
 
     private void Start()
     {
@@ -283,6 +284,7 @@ public class Moon : MonoBehaviour
         Debug.Log($"Collision leave {collision.name}");
         if (collision.tag == "DustCloud")
         {
+            unstuckNoise.Play();
             SetStuckForce(0);
             rig.AddForce(rig.velocity.normalized * 4000f);
         }
