@@ -216,6 +216,8 @@ public class GameControl:MonoBehaviour
         bgFullMoonIndex = (1f - background.color.a) / FullMoonAnimationTime;
         lFullMoonIndex = (1f - globalLight.intensity) / FullMoonAnimationTime;
         isFullMoon = true;
+        moon.transform.GetComponent<AudioSource>().Stop();
+        moon.transform.Find("moonReprise").GetComponent<AudioSource>().Play();
     }
 
     
