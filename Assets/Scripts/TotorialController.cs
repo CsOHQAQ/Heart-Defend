@@ -21,12 +21,13 @@ public class TotorialController : MonoBehaviour
     {
         if (curStep == TotorialStep.MoveToMoon)
         {
-            float StayRange = 10f;
+            float StayRange = 15f;
             float StayTime = 3f;
 
             if (Vector2.Distance(GameControl.Game.player.transform.position,GameControl.Game.moon.transform.position)<StayRange)
             {
                 timer += Time.deltaTime;
+                GameControl.Game.cam.
                 if (timer >= StayTime)
                 {
                     SwitchStep(TotorialStep.MoonMoveToCloud);

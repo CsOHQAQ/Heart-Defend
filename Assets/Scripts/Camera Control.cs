@@ -12,7 +12,7 @@ public class CameraControl : MonoBehaviour
     public bool isFollowing = true;
     public GameObject followGO;
 
-    Camera cam;
+    public Camera cam;
     PlayerControl player;
     SpriteRenderer bgSprite;
     float borderX=float.MaxValue, borderY=float.MaxValue;
