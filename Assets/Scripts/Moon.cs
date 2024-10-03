@@ -49,6 +49,9 @@ public class Moon : MonoBehaviour
     float stuckMoveInTimer;
     Vector2 stuckMoveInPos;
 
+    public AudioSource stuckSound;
+    public AudioSource starPickup;
+    public AudioSource unstuckNoise;
 
 
     private void Start()
@@ -66,6 +69,7 @@ public class Moon : MonoBehaviour
         
         SetWanderTarget();
         SetNextWanderPosition();
+
     }
     private void Update()
     {
@@ -263,10 +267,9 @@ public class Moon : MonoBehaviour
         {
             stuckPullingCount = 0;
             SetStuckForce(collision.GetComponent<DustCloud>().StaticFriction);
-
-            stuckMoveInTimer = 0.3f;
+			stuckSound.Play();
+			stuckMoveInTimer = 0.3f;
             stuckMoveInPos = collision.transform.position;
-
         }
 
         if (collision.tag == "Star")
@@ -282,7 +285,8 @@ public class Moon : MonoBehaviour
             if (!star.isLit)
             {
                 star.Lit();
-                GetStar();                
+                GetStar();   
+                starPickup.Play();
             }
         }
 
@@ -292,6 +296,7 @@ public class Moon : MonoBehaviour
         Debug.Log($"Collision leave {collision.name}");
         if (collision.tag == "DustCloud")
         {
+            unstuckNoise.Play();
             SetStuckForce(0);
             rig.AddForce(rig.velocity.normalized * 4000f);
         }

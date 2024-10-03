@@ -45,6 +45,8 @@ public class PlayerControl : MonoBehaviour
     bool isPulling;
     ParticleSystem pullEffect;
     float pullIndex=0f;
+    public AudioSource starTwinkle;
+    public AudioSource pullNoise;
 
     // Start is called before the first frame update
     void Start()
@@ -64,27 +66,33 @@ public class PlayerControl : MonoBehaviour
     void Update()
     {
         GetInput();
-               
+
         if (isMoving)
         {
             rig.drag = 0;
             float targetAngle = Vector2.SignedAngle(Vector2.right, targetFacing);
             Vector3 v = transform.eulerAngles;
             transform.eulerAngles = new Vector3(0, 0, Mathf.MoveTowardsAngle(v.z, targetAngle, RotateSpeed * Time.deltaTime));
-            rig.velocity = Vector2.MoveTowards(rig.velocity, targetFacing*MaxSpeed,curEnergy/MaxEnergy*Acclerate*Time.deltaTime);
+            rig.velocity = Vector2.MoveTowards(rig.velocity, targetFacing * MaxSpeed, curEnergy / MaxEnergy * Acclerate * Time.deltaTime);
+            if (!starTwinkle.isPlaying)
+                starTwinkle.Play();
         }
         else//Stopping
         {
-            rig.drag = Acclerate / (rig.velocity.magnitude+1f);
+            rig.drag = Acclerate / (rig.velocity.magnitude + 1f);
             //rig.velocity = Vector2.MoveTowards(rig.velocity,Vector2.zero,Acclerate*Time.deltaTime/Mathf.Log(1+ rig.velocity.magnitude));
+            if (GetComponent<Rigidbody2D>().velocity.magnitude < 1)
+            {
+                starTwinkle.Stop();
+            }
         }
-
-
+        
         if(!GameControl.Game.isFullMoon&&player.GetButton("Pull")&&curEnergy>0&&(coolDownTimer<=0f||isPulling))
         {
             isPulling = true;
             if (UsingNewPullMech)
             {
+
                 curPullChargeCount += Time.deltaTime;
                 selfLight.intensity += 3*Time.deltaTime;
                 selfLight.pointLightOuterRadius += 2 * Time.deltaTime;
@@ -104,7 +112,11 @@ public class PlayerControl : MonoBehaviour
                 curEnergy -= Time.deltaTime;
                 if (curEnergy < 0)
                     curEnergy = 0;
-
+                if (!pullNoise.isPlaying)
+                {
+                    pullNoise.volume = 1f;
+                    pullNoise.Play();
+                }
                 curPullForce += (curEnergy / MaxEnergy) * ForceIncreasement * Time.deltaTime;
 
                 //Calculate Pull Force
@@ -125,6 +137,7 @@ public class PlayerControl : MonoBehaviour
         }
         else
         {
+
             if (UsingNewPullMech)
             {
                 if (curPullChargeCount > 0)
@@ -157,6 +170,15 @@ public class PlayerControl : MonoBehaviour
             {
                 isPulling = false;
                 coolDownTimer = PullCoolDown;
+                //pullNoise.Stop();
+            }
+            else
+            {
+                pullNoise.volume=Mathf.MoveTowards(pullNoise.volume,0,Time.deltaTime);
+                if (pullNoise.volume < 0.05f)
+                {
+                    pullNoise.Stop();
+                }
             }
             if (coolDownTimer > 0) coolDownTimer -= Time.deltaTime;
             moon.isPulling = false;
