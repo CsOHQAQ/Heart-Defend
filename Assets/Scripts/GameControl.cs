@@ -226,6 +226,9 @@ public class GameControl:MonoBehaviour
         moon.transform.Find("moonReprise").GetComponent<AudioSource>().Play();
     }
 
-    
+    public void Reset()
+    {
+        _gameControl=null;
+    }
 
 }

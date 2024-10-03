@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Rewired;
+using UnityEngine.UI;
+using System;
 public class TotorialController : MonoBehaviour
 {
     public TotorialStep curStep=TotorialStep.empty;
 
-
+    Image TitleUI,blackOut;
+    
     TextBubble textBub;
     float timer = 0;
 
@@ -15,6 +18,9 @@ public class TotorialController : MonoBehaviour
     private void Start()
     {
         textBub=GameObject.Find("TextBubble").GetComponent<TextBubble>();
+        blackOut= GameObject.Find("BlackOut").GetComponent<Image>();
+        blackOut.color = new Color(0, 0, 0, 0);
+        TitleUI = GameObject.Find("TitleUI").GetComponent<Image>();  
         SwitchStep(TotorialStep.MoveToMoon);
     }
     private void Update()
@@ -27,11 +33,15 @@ public class TotorialController : MonoBehaviour
             if (Vector2.Distance(GameControl.Game.player.transform.position,GameControl.Game.moon.transform.position)<StayRange)
             {
                 timer += Time.deltaTime;
-                GameControl.Game.cam.
+                TitleUI.color = new Color(1, 1, 1, Mathf.MoveTowards(TitleUI.color.a, 0, Time.deltaTime / 3f));
                 if (timer >= StayTime)
                 {
                     SwitchStep(TotorialStep.MoonMoveToCloud);
                 }
+            }
+            else
+            {
+                TitleUI.color = new Color(1, 1, 1, Mathf.MoveTowards(TitleUI.color.a, 1, Time.deltaTime / 3f));
             }
 
 
@@ -40,19 +50,41 @@ public class TotorialController : MonoBehaviour
         {
             if (GameControl.Game.moon.isStucked)
             {
+                GameControl.Game.moon.SetFullMoonIndex(0.3f);
                 SwitchStep(TotorialStep.PullTheMoon);
             }
 
         }
         else if (curStep==TotorialStep.PullTheMoon)
         {
-
+            if (!GameControl.Game.moon.isStucked)
+            {
+                SwitchStep(TotorialStep.CollectStar);
+            }
         }
         else if (curStep == TotorialStep.CollectStar)
         {
-
+            bool flag = true;
+            foreach (var star in GameControl.Game.StarList)
+            {
+                if (!star.isLit)
+                {
+                    flag = false;
+                }
+            }
+            if (flag)
+            {
+                SwitchStep(TotorialStep.Final);                
+            }
         }
-
+        else if (curStep == TotorialStep.Final)
+        {
+            blackOut.color = new Color(0,0,0,Mathf.MoveTowards(blackOut.color.a,1,Time.deltaTime));
+            if (blackOut.color.a >= 0.98f)
+            {
+                FinishTotorial();
+            }
+        }
 
     }
 
@@ -70,6 +102,7 @@ public class TotorialController : MonoBehaviour
 
         else if (next == TotorialStep.MoonMoveToCloud)
         {
+            Destroy(TitleUI.gameObject);
             GameControl.Game.cam.isFollowing= true;
             GameControl.Game.cam.followGO = GameControl.Game.moon.gameObject;
             GameControl.Game.player.CanPull= false;
@@ -90,8 +123,8 @@ public class TotorialController : MonoBehaviour
         }
 
         else if (next == TotorialStep.CollectStar)
-        {
-
+        {    
+            
         }
 
     }
@@ -102,6 +135,7 @@ public class TotorialController : MonoBehaviour
     }
     void FinishTotorial()
     {
+        GameControl.Game.Reset();
         SceneManager.LoadScene(1);
     }
 
@@ -113,5 +147,6 @@ public class TotorialController : MonoBehaviour
         MoonMoveToCloud,
         PullTheMoon,
         CollectStar,
+        Final
     }
 }

@@ -226,9 +226,12 @@ public class Moon : MonoBehaviour
 
     public void GetStar()
     {
-        nextMoonIndex += (1f - InitFullMoonIndex) / GameControl.Game.StarNum;
-        if (nextMoonIndex > 0.95f)
-            nextMoonIndex = 1f;
+        if (!GameControl.Game.isTotorial)
+        {
+            nextMoonIndex += (1f - InitFullMoonIndex) / GameControl.Game.StarNum;
+            if (nextMoonIndex > 0.95f)
+                nextMoonIndex = 1f;
+        }        
     }
 
     /// <summary>
@@ -244,15 +247,14 @@ public class Moon : MonoBehaviour
             if (stuckPullingCount > 2f)
             {
                 rig.drag  = 0f;
+                transform.rotation=Quaternion.Euler(0f, 0f, 0f);
             }
             else
             {
                 Randomer rnd = new Randomer();
-                float angle = rnd.nextFloat();
-                if (rnd.nextFloat() > 0.5f)
-                    return;
-                Vector2 shakePos = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle))* (ShakeStrength + 0.2f * stuckPullingCount);
-                //transform.position = (Vector2)transform.position + shakePos;
+
+                float shakeAngle = (Mathf.Sin(stuckPullingCount * Mathf.PI*3)-0.5f) * ShakeStrength;
+                transform.rotation = Quaternion.Euler(0, 0, shakeAngle);
                 stuckPullingCount += Time.deltaTime;
             }
             rig.AddForce(pullForce);
@@ -402,6 +404,11 @@ public class Moon : MonoBehaviour
         Randomer rnd= new Randomer();
         float angle=rnd.nextFloat()*2*Mathf.PI,r=rnd.nextFloat()*WanderRadius;
         wanderPos=new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*r+center;
+    }
+
+    public void SetFullMoonIndex(float index) 
+    {
+        nextMoonIndex = index;
     }
 
 }
