@@ -28,8 +28,8 @@ public class PlayerControl : MonoBehaviour
     public bool UsingNewPullMech=false;
     public float MaxCharingTime = 3f;
 
-    public bool CanMove;
-    public bool CanPull;
+    public bool CanMove=true;
+    public bool CanPull=true;
 
 
 
@@ -87,7 +87,7 @@ public class PlayerControl : MonoBehaviour
             }
         }
         
-        if(!GameControl.Game.isFullMoon&&player.GetButton("Pull")&&curEnergy>0&&(coolDownTimer<=0f||isPulling))
+        if(CanPull&&player.GetButton("Pull")&&curEnergy>0&&(coolDownTimer<=0f||isPulling))
         {
             isPulling = true;
             if (UsingNewPullMech)
@@ -220,7 +220,7 @@ public class PlayerControl : MonoBehaviour
     void GetInput()
     {
 
-        if (Mathf.Abs(player.GetAxis("MoveX")) < 0.05f && Mathf.Abs(player.GetAxis("MoveY")) < 0.05f)
+        if (!CanMove||Mathf.Abs(player.GetAxis("MoveX")) < 0.05f && Mathf.Abs(player.GetAxis("MoveY")) < 0.05f)
         {
             isMoving = false;
             return;
@@ -265,7 +265,17 @@ public class PlayerControl : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        
+        if (collision.tag == "DustCloud")
+        {
+            MaxSpeed /= 2;
+        }
+    }
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.tag == "DustCloud")
+        {
+            MaxSpeed *= 2;
+        }
     }
 
 }

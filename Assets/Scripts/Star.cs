@@ -40,6 +40,7 @@ public class Star : MonoBehaviour
     {
         if (liting) 
         {
+            GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, Mathf.MoveTowards(GetComponent<SpriteRenderer>().color.a, 1, Time.deltaTime / 0.25f));
             light2D.pointLightOuterRadius = Mathf.Lerp(light2D.pointLightOuterRadius, LitRadius, LitSpeed * Time.deltaTime);
             light2D.falloffIntensity = Mathf.Lerp(light2D.falloffIntensity, 0.5f, LitSpeed * Time.deltaTime);
         }

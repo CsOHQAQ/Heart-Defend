@@ -10,6 +10,7 @@ public class CameraControl : MonoBehaviour
     public float OriginalSize;
     public float ZoomRange;
     public bool isFollowing = true;
+    public GameObject followGO;
 
     Camera cam;
     PlayerControl player;
@@ -21,16 +22,37 @@ public class CameraControl : MonoBehaviour
 
     void Start()
     {
-        isFullMoon = false;
-        cam= GetComponent<Camera>();
-        player = GameObject.FindWithTag("Player").GetComponent<PlayerControl>();
-        OriginalSize = cam.orthographicSize;
-        bgSprite=GameObject.Find("Background").GetComponent<SpriteRenderer>();
-        if(bgSprite != null)
+        if (!GameControl.Game.isTotorial)
         {
-            borderX = bgSprite.bounds.size.x;
-            borderY=bgSprite.bounds.size.y;
+            isFullMoon = false;
+            cam = GetComponent<Camera>();
+            player = GameObject.FindWithTag("Player").GetComponent<PlayerControl>();
+            followGO=player.gameObject;
+            OriginalSize = cam.orthographicSize;
+            bgSprite = GameObject.Find("Background").GetComponent<SpriteRenderer>();
+            if (bgSprite != null)
+            {
+                borderX = bgSprite.bounds.size.x;
+                borderY = bgSprite.bounds.size.y;
+            }
         }
+        else
+        {
+            isFullMoon = false;
+            isFollowing = false;
+            cam = GetComponent<Camera>();
+            player = GameObject.FindWithTag("Player").GetComponent<PlayerControl>();
+            followGO = null;
+            OriginalSize = cam.orthographicSize;
+            bgSprite = GameObject.Find("Background").GetComponent<SpriteRenderer>();
+            if (bgSprite != null)
+            {
+                borderX = bgSprite.bounds.size.x;
+                borderY = bgSprite.bounds.size.y;
+            }
+        }
+
+
 
     }
 
@@ -42,12 +64,15 @@ public class CameraControl : MonoBehaviour
             //Camera Following
             if (isFollowing)
             {
-                transform.position = Vector3.MoveTowards(transform.position, player.transform.position + new Vector3(0, 0, -10), MoveSpeed * Time.deltaTime);
+                transform.position = Vector3.MoveTowards(transform.position, followGO.transform.position + new Vector3(0, 0, -10), MoveSpeed * Time.deltaTime);
 
                 transform.position = new Vector3(Mathf.Clamp(transform.position.x, -borderX / 2 + cam.orthographicSize * cam.pixelWidth / cam.pixelHeight, borderX / 2 - cam.orthographicSize * cam.pixelWidth / cam.pixelHeight),
                     Mathf.Clamp(transform.position.y, -borderY / 2 + cam.orthographicSize, borderY / 2 - cam.orthographicSize), -10);
-            } 
+            }
+            else
+            {
 
+            }
             //CameraZoom
             if (Vector2.Distance(GameControl.Game.player.transform.position, GameControl.Game.moon.transform.position) < ZoomRange)
             {

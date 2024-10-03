@@ -29,8 +29,8 @@ public class Moon : MonoBehaviour
     public float FullMoonLightRadius = 25f;    
     public Vector2 FullMoonPos;
 
-    public bool CanMove;
-    
+    public bool CanMove=true;
+    public bool isStucked = false;
 
     GameObject maskGO;
     Vector3 lastPos;
@@ -66,98 +66,127 @@ public class Moon : MonoBehaviour
         moonNoColorSprite = transform.Find("Sprite NoColor").GetComponent<SpriteRenderer>();
         nextMoonIndex = InitFullMoonIndex;
         wanderTimer= 0;
-        
-        SetWanderTarget();
-        SetNextWanderPosition();
 
-    }
-    private void Update()
-    {
-        if (!isPulling)
+        if (CanMove)
         {
-            //rig.velocity = Vector2.MoveTowards(rig.velocity,Vector2.zero,Friction* Time.deltaTime);
-            wanderTimer += Time.deltaTime;
-        }
-        else
-        {
-            wanderTimer = 0;
-        }
-
-        //Random change target every 3s
-        changeTargetTimer += Time.deltaTime;
-        if (changeTargetTimer > 3f&&FullMoonIndex>=0.95f)
-        {
-            changeTargetTimer = 0;
             SetWanderTarget();
             SetNextWanderPosition();
         }
 
-        if (stuckMoveInTimer > 0)
+    }
+    private void Update()
+    {
+        if (CanMove)
         {
-            stuckMoveInTimer -= Time.deltaTime;
-            transform.position = Vector2.MoveTowards(transform.position,stuckMoveInPos,3*Time.deltaTime);
-        }
+            if (!isPulling)
+            {
+                //rig.velocity = Vector2.MoveTowards(rig.velocity,Vector2.zero,Friction* Time.deltaTime);
+                wanderTimer += Time.deltaTime;
+            }
+            else
+            {
+                wanderTimer = 0;
+            }
 
-
-        //Check wander
-
-        Vector2 speed = (wanderPos - (Vector2)transform.position).normalized * WanderSpeed;
-        rig.velocity = Vector2.MoveTowards(rig.velocity, speed, Time.deltaTime / 0.5f);
-        Debug.DrawLine(transform.position, wanderPos, Color.red);
-        if (Vector2.Distance(transform.position, wanderPos) < 1f)
-        {
-            Debug.Log("Moon have wander to the target");
-            if (Vector2.Distance(transform.position, wanderTarget.transform.position) < 5f)
+            //Random change target every 3s
+            changeTargetTimer += Time.deltaTime;
+            if (changeTargetTimer > 3f && FullMoonIndex >= 0.95f)
+            {
+                changeTargetTimer = 0;
                 SetWanderTarget();
-            SetNextWanderPosition();
-        }
+                SetNextWanderPosition();
+            }
 
-        if (wanderTimer > 0.5f)
-        {
-            /*
+            if (stuckMoveInTimer > 0)
+            {
+                stuckMoveInTimer -= Time.deltaTime;
+                transform.position = Vector2.MoveTowards(transform.position, stuckMoveInPos, 3 * Time.deltaTime);
+            }
+
+
+            //Check wander
+
             Vector2 speed = (wanderPos - (Vector2)transform.position).normalized * WanderSpeed;
             rig.velocity = Vector2.MoveTowards(rig.velocity, speed, Time.deltaTime / 0.5f);
-            Debug.DrawLine(transform.position,wanderPos,Color.red);
-            if (Vector2.Distance(transform.position,wanderPos)<1f)
+            Debug.DrawLine(transform.position, wanderPos, Color.red);
+            if (Vector2.Distance(transform.position, wanderPos) < 1f)
             {
                 Debug.Log("Moon have wander to the target");
                 if (Vector2.Distance(transform.position, wanderTarget.transform.position) < 5f)
                     SetWanderTarget();
                 SetNextWanderPosition();
             }
-            */
-        }
 
-        //Check if stucked
-        if (stuckFriction > 0)
-        {
-            //rig.velocity = Vector2.MoveTowards(rig.velocity, Vector2.zero, stuckFriction/20 * Time.deltaTime);// subdivide 50 to adjust the index
-        }        
-        if (rig.velocity.magnitude > 60f)
-        {
-            rig.velocity = rig.velocity.normalized * 60f;
-        }
-
-        if (Vector3.Distance(lastPos, transform.position) > OverSpeedLimit)
-        {
-            transform.position = lastPos+(transform.position-lastPos).normalized*OverSpeedLimit;
-        }
-        lastPos = transform.position;   
-
-        FullMoonIndex = Mathf.MoveTowards(FullMoonIndex, nextMoonIndex, Time.deltaTime / 2f);
-
-        RefreshFullMoonIndex();
-
-        if (FullMoonIndex >= 1f)
-        {
-            if (!GameControl.Game.isFullMoon)
+            if (wanderTimer > 0.5f)
             {
-                GameControl.Game.FullMoon();
-                posFMIndex = Vector2.Distance(transform.position, FullMoonPos) / GameControl.Game.FullMoonAnimationTime;
+                /*
+                Vector2 speed = (wanderPos - (Vector2)transform.position).normalized * WanderSpeed;
+                rig.velocity = Vector2.MoveTowards(rig.velocity, speed, Time.deltaTime / 0.5f);
+                Debug.DrawLine(transform.position,wanderPos,Color.red);
+                if (Vector2.Distance(transform.position,wanderPos)<1f)
+                {
+                    Debug.Log("Moon have wander to the target");
+                    if (Vector2.Distance(transform.position, wanderTarget.transform.position) < 5f)
+                        SetWanderTarget();
+                    SetNextWanderPosition();
+                }
+                */
             }
-            transform.position = Vector2.MoveTowards(transform.position, FullMoonPos, posFMIndex * Time.deltaTime);
 
+            //Check if stucked
+            if (stuckFriction > 0)
+            {
+                //rig.velocity = Vector2.MoveTowards(rig.velocity, Vector2.zero, stuckFriction/20 * Time.deltaTime);// subdivide 50 to adjust the index
+            }
+            if (rig.velocity.magnitude > 60f)
+            {
+                rig.velocity = rig.velocity.normalized * 60f;
+            }
+
+            FullMoonIndex = Mathf.MoveTowards(FullMoonIndex, nextMoonIndex, Time.deltaTime / 2f);
+
+            RefreshFullMoonIndex();
+
+            if (FullMoonIndex >= 1f)
+            {
+                if (!GameControl.Game.isFullMoon)
+                {
+                    GameControl.Game.FullMoon();
+                    posFMIndex = Vector2.Distance(transform.position, FullMoonPos) / GameControl.Game.FullMoonAnimationTime;
+                }
+                transform.position = Vector2.MoveTowards(transform.position, FullMoonPos, posFMIndex * Time.deltaTime);
+
+            }
         }
+        else
+        {
+            //Check if stucked
+            if (stuckFriction > 0)
+            {
+                //rig.velocity = Vector2.MoveTowards(rig.velocity, Vector2.zero, stuckFriction/20 * Time.deltaTime);// subdivide 50 to adjust the index
+            }
+            if (rig.velocity.magnitude > 60f)
+            {
+                rig.velocity = rig.velocity.normalized * 60f;
+            }
+
+            FullMoonIndex = Mathf.MoveTowards(FullMoonIndex, nextMoonIndex, Time.deltaTime / 2f);
+
+            RefreshFullMoonIndex();
+
+            if (FullMoonIndex >= 1f)
+            {
+                if (!GameControl.Game.isFullMoon)
+                {
+                    GameControl.Game.FullMoon();
+                    posFMIndex = Vector2.Distance(transform.position, FullMoonPos) / GameControl.Game.FullMoonAnimationTime;
+                }
+                transform.position = Vector2.MoveTowards(transform.position, FullMoonPos, posFMIndex * Time.deltaTime);
+
+            }
+        }
+
+       
     }
 
     public void RefreshFullMoonIndex()
@@ -270,6 +299,7 @@ public class Moon : MonoBehaviour
 			stuckSound.Play();
 			stuckMoveInTimer = 0.3f;
             stuckMoveInPos = collision.transform.position;
+            isStucked = true;
         }
 
         if (collision.tag == "Star")
@@ -298,6 +328,7 @@ public class Moon : MonoBehaviour
         {
             unstuckNoise.Play();
             SetStuckForce(0);
+            isStucked = false;
             rig.AddForce(rig.velocity.normalized * 4000f);
         }
     }
@@ -316,7 +347,7 @@ public class Moon : MonoBehaviour
         poly.SetPath(0, nPath);
     }
 
-    void SetWanderTarget()
+    public void SetWanderTarget()
     {
         if (FullMoonIndex > 0.95f)
             return;
@@ -365,19 +396,14 @@ public class Moon : MonoBehaviour
         }
     }
 
-    void SetNextWanderPosition()
+    public void SetNextWanderPosition()
     {        
         Vector2 center = Vector2.MoveTowards(transform.position,wanderTarget.transform.position,WanderStepLength);
         Randomer rnd= new Randomer();
         float angle=rnd.nextFloat()*2*Mathf.PI,r=rnd.nextFloat()*WanderRadius;
         wanderPos=new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*r+center;
     }
-    public void AddMusic()
-    {
 
-    }
 }
 
-
-//TODO: Music Collection
-//TODO: Moon shake bug testing
+//TODO: Moon shake

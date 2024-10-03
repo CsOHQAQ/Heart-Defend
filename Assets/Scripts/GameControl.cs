@@ -26,6 +26,8 @@ public class GameControl:MonoBehaviour
     [HideInInspector]
     public PlayerControl player;
     [HideInInspector]
+    public CameraControl cam;
+    [HideInInspector]
     public float MapHeight;
     [HideInInspector]
     public float MapWidth;
@@ -72,6 +74,8 @@ public class GameControl:MonoBehaviour
         else
             Debug.LogError("Player Not Found!");
 
+        cam = GameObject.Find("Main Camera").GetComponent<CameraControl>();
+
         background = GameObject.Find("Background").GetComponent<SpriteRenderer>();
         globalLight = GameObject.Find("Global Light 2D").GetComponent<Light2D>();
 
@@ -108,6 +112,7 @@ public class GameControl:MonoBehaviour
             foreach (var item in GameObject.FindGameObjectsWithTag("DustCloud"))
             {
                 DustCloudList.Clear();
+                item.GetComponent<DustCloud>().Init();
                 DustCloudList.Add(item.GetComponent<DustCloud>());
             }
             return;
@@ -158,17 +163,19 @@ public class GameControl:MonoBehaviour
 
     void GenerateStars(int generateNum)
     {
+        Randomer rnd = new Randomer();
+
         if (isTotorial)
         {
             foreach (var item in GameObject.FindGameObjectsWithTag("Star"))
             {
                 StarList.Clear();
+                item.GetComponent<Star>().Init(AudioClipList[rnd.nextInt(AudioClipList.Count)]);
                 StarList.Add(item.GetComponent<Star>());
             }
             return;
         }
 
-        Randomer rnd=new Randomer();
         StarList.Clear();
 
         int loopCount = 0;
@@ -211,7 +218,6 @@ public class GameControl:MonoBehaviour
 
     public void FullMoon()
     {
-        CameraControl cam = GameObject.Find("Main Camera").GetComponent<CameraControl>();
         cam.FullMoon();
         bgFullMoonIndex = (1f - background.color.a) / FullMoonAnimationTime;
         lFullMoonIndex = (1f - globalLight.intensity) / FullMoonAnimationTime;
