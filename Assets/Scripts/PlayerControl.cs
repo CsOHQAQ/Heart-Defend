@@ -28,6 +28,9 @@ public class PlayerControl : MonoBehaviour
     public bool UsingNewPullMech=false;
     public float MaxCharingTime = 3f;
 
+    public bool CanMove;
+    public bool CanPull;
+
 
 
     Light2D selfLight;
@@ -237,6 +240,13 @@ public class PlayerControl : MonoBehaviour
                 pullEffect.Stop();
         }
     }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        
+    }
+
 }
 
-//TODO: Pulling Effect?
+
+//TODO: Player slow down enterinig the cloud

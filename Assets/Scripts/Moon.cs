@@ -28,6 +28,8 @@ public class Moon : MonoBehaviour
     public float FullMoonMaskPosition=3.8f;
     public float FullMoonLightRadius = 25f;    
     public Vector2 FullMoonPos;
+
+    public bool CanMove;
     
 
     GameObject maskGO;
@@ -44,6 +46,8 @@ public class Moon : MonoBehaviour
     GameObject wanderTarget;
     Vector2 wanderPos;
     Vector2 beforeShakePos;
+    float stuckMoveInTimer;
+    Vector2 stuckMoveInPos;
 
 
 
@@ -82,6 +86,12 @@ public class Moon : MonoBehaviour
             changeTargetTimer = 0;
             SetWanderTarget();
             SetNextWanderPosition();
+        }
+
+        if (stuckMoveInTimer > 0)
+        {
+            stuckMoveInTimer -= Time.deltaTime;
+            transform.position = Vector2.MoveTowards(transform.position,stuckMoveInPos,3*Time.deltaTime);
         }
 
 
@@ -253,6 +263,10 @@ public class Moon : MonoBehaviour
         {
             stuckPullingCount = 0;
             SetStuckForce(collision.GetComponent<DustCloud>().StaticFriction);
+
+            stuckMoveInTimer = 0.3f;
+            stuckMoveInPos = collision.transform.position;
+
         }
 
         if (collision.tag == "Star")

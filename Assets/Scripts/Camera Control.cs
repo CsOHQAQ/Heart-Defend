@@ -9,6 +9,7 @@ public class CameraControl : MonoBehaviour
     public float ZoomSpeed;
     public float OriginalSize;
     public float ZoomRange;
+    public bool isFollowing = true;
 
     Camera cam;
     PlayerControl player;
@@ -39,11 +40,13 @@ public class CameraControl : MonoBehaviour
         if (!isFullMoon) 
         {
             //Camera Following
-            transform.position = Vector3.MoveTowards(transform.position, player.transform.position + new Vector3(0, 0, -10), MoveSpeed * Time.deltaTime);
+            if (isFollowing)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, player.transform.position + new Vector3(0, 0, -10), MoveSpeed * Time.deltaTime);
 
-            transform.position = new Vector3(Mathf.Clamp(transform.position.x, -borderX / 2 + cam.orthographicSize * cam.pixelWidth / cam.pixelHeight, borderX / 2 - cam.orthographicSize * cam.pixelWidth / cam.pixelHeight),
-                Mathf.Clamp(transform.position.y, -borderY / 2 + cam.orthographicSize, borderY / 2 - cam.orthographicSize), -10);
-
+                transform.position = new Vector3(Mathf.Clamp(transform.position.x, -borderX / 2 + cam.orthographicSize * cam.pixelWidth / cam.pixelHeight, borderX / 2 - cam.orthographicSize * cam.pixelWidth / cam.pixelHeight),
+                    Mathf.Clamp(transform.position.y, -borderY / 2 + cam.orthographicSize, borderY / 2 - cam.orthographicSize), -10);
+            } 
 
             //CameraZoom
             if (Vector2.Distance(GameControl.Game.player.transform.position, GameControl.Game.moon.transform.position) < ZoomRange)

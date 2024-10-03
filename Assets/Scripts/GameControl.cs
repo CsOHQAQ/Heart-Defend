@@ -86,7 +86,7 @@ public class GameControl:MonoBehaviour
         GenerateStars(StarNum);
 
         if (isTotorial)
-            Totorial = GameObject.Find("Totorial Controller").GetComponent<TotorialController>();
+            Totorial = GameObject.Find("TotorialController").GetComponent<TotorialController>();
 
         isFullMoon = false;
     }

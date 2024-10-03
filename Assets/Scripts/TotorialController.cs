@@ -33,6 +33,30 @@ public class TotorialController : MonoBehaviour
 
     }
 
+    void SwitchStep(TotorialStep next) 
+    {
+        if (next == TotorialStep.MoveToMoon)
+        {
+
+        }
+
+        else if (next == TotorialStep.MoonMoveToCloud)
+        {
+
+        }
+
+        else if (next == TotorialStep.PullTheMoon)
+        {
+
+        }
+
+        else if (next == TotorialStep.CollectStar)
+        {
+
+        }
+
+    }
+
     void FinishTotorial()
     {
         SceneManager.LoadScene(1);
@@ -41,6 +65,7 @@ public class TotorialController : MonoBehaviour
 
     public enum TotorialStep
     {
+        empty,
         MoveToMoon,
         MoonMoveToCloud,
         PullTheMoon,
