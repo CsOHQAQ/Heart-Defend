@@ -74,6 +74,8 @@ public class TotorialController : MonoBehaviour
             GameControl.Game.player.CanPull= false;
             GameControl.Game.player.CanMove= false;
             GameControl.Game.moon.CanMove = true;
+            GameControl.Game.moon.SetWanderTarget();
+            GameControl.Game.moon.SetNextWanderPosition();
         }
 
         else if (next == TotorialStep.PullTheMoon)
