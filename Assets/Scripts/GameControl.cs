@@ -47,7 +47,8 @@ public class GameControl:MonoBehaviour
     public List<GameObject> DustCloudPrefabs;
     public List<AudioClip> AudioClipList;
 
-    
+    public GameObject StarPingPrefab;
+    public List<StarPing> StarPingList;
     
     SpriteRenderer background;
     Light2D globalLight;
@@ -88,6 +89,15 @@ public class GameControl:MonoBehaviour
         GenerateCloud(CloudNum);
         StarList = new List<Star>();
         GenerateStars(StarNum);
+        StarPingList = new List<StarPing>();
+        Transform canvas = GameObject.Find("Canvas").transform;
+        foreach (var star in StarList)
+        {
+            StarPing ping = Instantiate(StarPingPrefab,canvas).GetComponent<StarPing>();
+            ping.Init(moon,star);
+            StarPingList.Add(ping);
+        }
+
 
         if (isTotorial)
             Totorial = GameObject.Find("TotorialController").GetComponent<TotorialController>();

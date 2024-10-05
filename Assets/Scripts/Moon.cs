@@ -90,7 +90,7 @@ public class Moon : MonoBehaviour
 
             //Random change target every 3s
             changeTargetTimer += Time.deltaTime;
-            if (changeTargetTimer > 3f && FullMoonIndex >= 0.95f)
+            if (changeTargetTimer > 3f && FullMoonIndex <= 0.95f)
             {
                 changeTargetTimer = 0;
                 SetWanderTarget();
