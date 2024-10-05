@@ -12,7 +12,8 @@ public class TotorialController : MonoBehaviour
     Image TitleUI,blackOut;
     
     TextBubble textBub;
-    float timer = 0;
+    float timer = 0,timer2=0f;
+    bool flag;
 
 
     private void Start()
@@ -34,9 +35,13 @@ public class TotorialController : MonoBehaviour
             {
                 timer += Time.deltaTime;
                 TitleUI.color = new Color(1, 1, 1, Mathf.MoveTowards(TitleUI.color.a, 0, Time.deltaTime / 3f));
-                if (timer >= StayTime)
+                if (timer >= StayTime&&flag)
                 {
-                    SwitchStep(TotorialStep.MoonMoveToCloud);
+                    flag = false;
+                    textBub.AddText("The sky looks great tonight. Woah! It looks even better from your perspective.",6f);
+                    Action act = ()=> {SwitchStep(TotorialStep.MoonMoveToCloud);};
+                    textBub.AddText("Wait, where are you going?",6f,act);
+                    
                 }
             }
             else
@@ -50,6 +55,8 @@ public class TotorialController : MonoBehaviour
         {
             if (GameControl.Game.moon.isStucked)
             {
+                textBub.AddText("My friend has been engulfed by those dark clouds, I need to help the moon out of them.", 6f);
+                textBub.AddText("Maybe I can pull them out with my light.",6f);
                 GameControl.Game.moon.SetFullMoonIndex(0.3f);
                 SwitchStep(TotorialStep.PullTheMoon);
             }
@@ -59,22 +66,29 @@ public class TotorialController : MonoBehaviour
         {
             if (!GameControl.Game.moon.isStucked)
             {
+                textBub.AddText("That took a lot of effort, I must take care of myself to not burn out.", 6f);
+                textBub.AddText("Those clouds affected them really badly. They look like they have just shut down.", 6f);
+                textBub.AddText("I could help them see the stars again, to brighten their mood.", 6);
                 SwitchStep(TotorialStep.CollectStar);
             }
         }
         else if (curStep == TotorialStep.CollectStar)
         {
-            bool flag = true;
+            bool flag2 = true;
             foreach (var star in GameControl.Game.StarList)
             {
                 if (!star.isLit)
                 {
-                    flag = false;
+                    flag2 = false;
                 }
             }
-            if (flag)
+
+            if (flag&&flag2)
             {
-                SwitchStep(TotorialStep.Final);                
+                flag= false;
+                textBub.AddText("Does that help? Maybe we can seek more stars.",6f);
+                textBub.AddText("I know the best thing I can do is support the moon, no matter what.", 6f, () => { SwitchStep(TotorialStep.Final); });
+                          
             }
         }
         else if (curStep == TotorialStep.Final)
@@ -96,8 +110,8 @@ public class TotorialController : MonoBehaviour
             GameControl.Game.player.CanMove = true;
             GameControl.Game.player.CanPull= false;
             GameControl.Game.cam.isFollowing = false;
-
-            StartCoroutine(ShowText("press WASD to move", 5, 3));
+            flag = true;
+            StartCoroutine(ShowText("Meet the moon to start", 6, 2));
         }
 
         else if (next == TotorialStep.MoonMoveToCloud)
@@ -123,8 +137,8 @@ public class TotorialController : MonoBehaviour
         }
 
         else if (next == TotorialStep.CollectStar)
-        {    
-            
+        {
+            flag = true;
         }
 
     }

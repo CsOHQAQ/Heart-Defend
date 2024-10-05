@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using System;
 
 public class TextBubble : MonoBehaviour
 {
@@ -34,7 +35,9 @@ public class TextBubble : MonoBehaviour
         {
             timer += Time.deltaTime;
             if (timer >= texts[0].showTime)
-            {                
+            {
+                if (texts[0].call!=null)
+                    texts[0].call();
                 texts.RemoveAt(0);
                 Tmp.text = "";
                 return;
@@ -53,17 +56,23 @@ public class TextBubble : MonoBehaviour
 
     }
 
-    public void AddText(string text,float showTime)
+    public void AddText(string text,float showTime,Action call=null)
     {
         TextInfo info = new TextInfo();
         info.text = text;
         info.showTime = showTime;
+        if (call != null)
+            info.call = call;
         texts.Add(info);
+
+       
     }
 
     public struct TextInfo
     {
         public string text;
         public float showTime;
+        public Action call;
+
     }
 }

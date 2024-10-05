@@ -5037,7 +5037,7 @@ MonoBehaviour:
   CloestObjDistance: 30
   StarList: []
   DustCloudList: []
-  CloudNum: 7
+  CloudNum: 13
   DustCloudPrefab: {fileID: 3220812860525184895, guid: 800c998de28224a48bb2f7eda18d5c42,
     type: 3}
   DustCloudPrefabs:
@@ -5051,7 +5051,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: df97cdcfb50a9e241b12575e0fb4ca70, type: 3}
   - {fileID: 8300000, guid: 07b62ed4a8d73f34599306f5290044d5, type: 3}
   - {fileID: 8300000, guid: 950e62a011927444eb259ea9ec672a5d, type: 3}
-  FullMoonAnimationTime: 30
+  FullMoonAnimationTime: 18
   isFullMoon: 0
 --- !u!4 &1582395753
 Transform:
