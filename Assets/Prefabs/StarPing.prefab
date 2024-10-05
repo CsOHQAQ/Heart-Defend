@@ -90,5 +90,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxShownDistance: 60
   FullShownDistance: 40
-  radius: 12
+  radius: 20
   img: {fileID: 0}

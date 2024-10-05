@@ -27,7 +27,7 @@ public class StarPing : MonoBehaviour
     {
         Vector2 direction=star.transform.position-moon.transform.position;
         float angle = Vector2.SignedAngle(Vector2.right,direction);
-        transform.position = Camera.main.WorldToScreenPoint((Vector2)moon.transform.position+direction.normalized*radius);
+        transform.position = Camera.main.WorldToScreenPoint((Vector2)moon.transform.Find("Sprite").position+direction.normalized*radius);
         transform.rotation = Quaternion.Euler(0, 0, angle);
         nextShownIndex = Mathf.Clamp01((Vector2.Distance(moon.transform.position,star.transform.position)-MaxShownDistance)/FullShownDistance);
         if (Vector2.Distance(GameControl.Game.player.transform.position,moon.transform.position)>GameControl.Game.cam.ZoomRange||star.isLit)

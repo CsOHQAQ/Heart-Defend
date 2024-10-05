@@ -97,7 +97,7 @@ public class Moon : MonoBehaviour
                 SetNextWanderPosition();
             }
 
-            if (stuckMoveInTimer > 0)
+            if (stuckMoveInTimer > 0&&isStucked)
             {
                 stuckMoveInTimer -= Time.deltaTime;
                 transform.position = Vector2.MoveTowards(transform.position, stuckMoveInPos, 3 * Time.deltaTime);
@@ -299,7 +299,7 @@ public class Moon : MonoBehaviour
             stuckPullingCount = 0;
             SetStuckForce(collision.GetComponent<DustCloud>().StaticFriction);
 			stuckSound.Play();
-			stuckMoveInTimer = 0.3f;
+			stuckMoveInTimer = 2f;
             stuckMoveInPos = collision.transform.position;
             isStucked = true;
         }
