@@ -5,12 +5,15 @@ using UnityEngine;
 public class CameraControl : MonoBehaviour
 {
     public float MoveSpeed;
+    public float ShakeStrength;
     public float ZoomSize;
     public float ZoomSpeed;
     public float OriginalSize;
     public float ZoomRange;
     public bool isFollowing = true;
     public GameObject followGO;
+    
+
 
     public Camera cam;
     PlayerControl player;
@@ -85,15 +88,39 @@ public class CameraControl : MonoBehaviour
         }
         else
         {
-            transform.position=Vector3.MoveTowards(transform.position,new Vector3(0,0,-10), posFMIndex * Time.deltaTime);
-            cam.orthographicSize = Mathf.MoveTowards(cam.orthographicSize,90f,sizeFMIndex*Time.deltaTime);
+            if(!isFollowing)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, new Vector3(0, 0, -10), posFMIndex * Time.deltaTime);
+                cam.orthographicSize = Mathf.MoveTowards(cam.orthographicSize, 90f, sizeFMIndex * Time.deltaTime);
+            }
+            else
+            {
+                transform.position = Vector3.MoveTowards(transform.position, followGO.transform.position + new Vector3(0, 0, -10), MoveSpeed * Time.deltaTime);
+
+                cam.orthographicSize = Mathf.MoveTowards(cam.orthographicSize, OriginalSize+ZoomSize, sizeFMIndex * Time.deltaTime);
+                transform.position = new Vector3(Mathf.Clamp(transform.position.x, -borderX / 2 + cam.orthographicSize * cam.pixelWidth / cam.pixelHeight, borderX / 2 - cam.orthographicSize * cam.pixelWidth / cam.pixelHeight),
+                    Mathf.Clamp(transform.position.y, -borderY / 2 + cam.orthographicSize, borderY / 2 - cam.orthographicSize), -10);
+
+            }
         }
     }
 
-    public void FullMoon()
+    public void FullMoonMove()
     {
-        posFMIndex = Vector3.Distance(transform.position, new Vector3(0, 0, -10)) / (GameControl.Game.FullMoonAnimationTime);
-        sizeFMIndex=(90f-cam.orthographicSize)/GameControl.Game.FullMoonAnimationTime;
+        followGO = GameControl.Game.moon.gameObject;
         isFullMoon = true;
+    }
+
+    public void FullMoonZoomOut()
+    {
+        isFollowing = false;
+        posFMIndex = Vector3.Distance(transform.position, new Vector3(0, 0, -10)) / 2f;
+        sizeFMIndex = (90f - cam.orthographicSize) / (2f);
+    }
+
+     void Shake(float AdditionalShakeStrength=0f)
+    {
+        Randomer rnd=new Randomer();
+        transform.position += new Vector3(rnd.nextFloat(), rnd.nextFloat()) * (ShakeStrength+AdditionalShakeStrength);
     }
 }

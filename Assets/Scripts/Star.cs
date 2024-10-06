@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -14,11 +15,13 @@ public class Star : MonoBehaviour
     Light2D light2D;
 
     List<GameObject> inTriggerList;
-
+    float timer;
     bool liting;
 
     public void Init(AudioClip clip)
     {
+        Randomer rnd=new Randomer();
+        timer = rnd.nextFloat() * 4f;
         isLit = false;
         liting = false;
         inTriggerList = new List<GameObject>();
@@ -41,8 +44,14 @@ public class Star : MonoBehaviour
         if (liting) 
         {
             GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, Mathf.MoveTowards(GetComponent<SpriteRenderer>().color.a, 1, Time.deltaTime / 0.25f));
-            light2D.pointLightOuterRadius = Mathf.Lerp(light2D.pointLightOuterRadius, LitRadius, LitSpeed * Time.deltaTime);
-            light2D.falloffIntensity = Mathf.Lerp(light2D.falloffIntensity, 0.5f, LitSpeed * Time.deltaTime);
+            light2D.intensity = 1f;
+            //light2D.pointLightOuterRadius = Mathf.Lerp(light2D.pointLightOuterRadius, LitRadius, LitSpeed * Time.deltaTime);
+            //light2D.falloffIntensity = Mathf.Lerp(light2D.falloffIntensity, 0.5f, LitSpeed * Time.deltaTime);
+        }
+        else
+        {
+            timer += Time.deltaTime;
+            light2D.intensity = Mathf.Sin(timer*3f)*0.2f+0.2f;
         }
 
 

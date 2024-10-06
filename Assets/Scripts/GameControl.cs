@@ -2,7 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using System;
+using UnityEditor.Rendering;
 
 public class GameControl:MonoBehaviour
 {
@@ -49,6 +53,8 @@ public class GameControl:MonoBehaviour
 
     public GameObject StarPingPrefab;
     public List<StarPing> StarPingList;
+
+    public float GlobalSaturate;
     
     SpriteRenderer background;
     Light2D globalLight;
@@ -56,7 +62,15 @@ public class GameControl:MonoBehaviour
     public float FullMoonAnimationTime;
     float bgFullMoonIndex;
     float lFullMoonIndex;
+    Volume volume;
+    GameObject testGO;
+    ColorAdjustments colorAdjust;
     public bool isFullMoon;
+    public float SaturateTime;
+    bool isSaturating=false;
+    bool isMoonMovingCenter = false;
+    Image endUI;
+
 
     private void Awake()
     {
@@ -97,10 +111,14 @@ public class GameControl:MonoBehaviour
             ping.Init(moon,star);
             StarPingList.Add(ping);
         }
-
-
+        volume = GameObject.Find("Global Volume").GetComponent<Volume>();
+        volume.profile.TryGet<ColorAdjustments>(out colorAdjust);
+        colorAdjust.saturation.value = GlobalSaturate - moon.FullMoonIndex * GlobalSaturate;
         if (isTotorial)
             Totorial = GameObject.Find("TotorialController").GetComponent<TotorialController>();
+
+        endUI = GameObject.Find("TheEndUI").GetComponent<Image>();
+        endUI.color = new Color(1, 1, 1, 0);
 
         isFullMoon = false;
     }
@@ -109,10 +127,30 @@ public class GameControl:MonoBehaviour
     void Update()
     {
         if (isFullMoon) 
-        {
-            globalLight.intensity = Mathf.MoveTowards(globalLight.intensity, 1,lFullMoonIndex* Time.deltaTime);
-            background.color = new Color(1,1,1,Mathf.MoveTowards(background.color.a,1,bgFullMoonIndex*Time.deltaTime));
+        {     
+            if (isSaturating)
+            {
+                globalLight.intensity = Mathf.MoveTowards(globalLight.intensity, 1, lFullMoonIndex * Time.deltaTime);
+                background.color = new Color(1, 1, 1, Mathf.MoveTowards(background.color.a, 1, bgFullMoonIndex * Time.deltaTime));
+                moon.FullMoonMaxSaturation = Mathf.MoveTowards(moon.FullMoonMaxSaturation, 1, Time.deltaTime / SaturateTime);
+                colorAdjust.saturation.value = Mathf.MoveTowards(colorAdjust.saturation.value, moon.FullMoonMaxSaturation * moon.FullMoonIndex * 100 - 100, Time.deltaTime);
+            }
+            else
+            {
+                endUI.color = new Color(1, 1, 1, Mathf.MoveTowards(endUI.color.a, 1, Time.deltaTime / 3f));
+            }
+
+            if (isMoonMovingCenter)
+            {
+                moon.transform.position = Vector2.MoveTowards(moon.transform.position, moon.FullMoonPos, Time.deltaTime / (FullMoonAnimationTime - SaturateTime));
+            }
         }
+        else
+        {
+            //Set Global Saturation
+            colorAdjust.saturation.value = Mathf.MoveTowards(colorAdjust.saturation.value,  GlobalSaturate-moon.FullMoonIndex * GlobalSaturate, Time.deltaTime);
+        }
+
     }
 
     void GenerateCloud(int generateNum)
@@ -226,19 +264,44 @@ public class GameControl:MonoBehaviour
             Debug.LogError("Not enough Star Generated!");
     }
 
+    /*
     public void FullMoon()
     {
-        cam.FullMoon();
-        bgFullMoonIndex = (1f - background.color.a) / FullMoonAnimationTime;
-        lFullMoonIndex = (1f - globalLight.intensity) / FullMoonAnimationTime;
         isFullMoon = true;
+        player.CanMove = false;
+        player.CanPull= false;
+
+        StartCoroutine(Wait(SaturateTime, cam.FullMoon));
+        
+        bgFullMoonIndex = (1f - background.color.a) / FullMoonAnimationTime;
+        lFullMoonIndex = (1f - globalLight.intensity) / FullMoonAnimationTime;        
         moon.transform.GetComponent<AudioSource>().Stop();
         moon.transform.Find("moonReprise").GetComponent<AudioSource>().Play();
     }
-
+    */
     public void Reset()
     {
         _gameControl=null;
+    }
+    public IEnumerator FullMoon()
+    {
+        isFullMoon=true;
+        player.CanMove = false;
+        player.CanPull= false;
+        isSaturating = true;
+        moon.CanMove = false;
+        isMoonMovingCenter = false;
+        cam.FullMoonMove();
+        bgFullMoonIndex = (1f - background.color.a) / SaturateTime;
+        lFullMoonIndex = (1f - globalLight.intensity) / SaturateTime;
+        yield return new WaitForSeconds(SaturateTime);
+        isMoonMovingCenter = true;
+        yield return new WaitForSeconds(FullMoonAnimationTime-SaturateTime);
+        player.CanMove = true;
+        cam.FullMoonZoomOut();
+        yield return new WaitForSeconds(2);
+        isSaturating = false;
+
     }
 
 }

@@ -24,6 +24,7 @@ public class Moon : MonoBehaviour
 
     [Header("Full Moon Settings")]
     public float InitFullMoonIndex = 0.3f;
+    public float FullMoonMaxSaturation = 0.7f;
     public float FullMoonIndex = 0.1f;
     public float FullMoonMaskPosition=3.8f;
     public float FullMoonLightRadius = 25f;    
@@ -133,60 +134,30 @@ public class Moon : MonoBehaviour
                 */
             }
 
-            //Check if stucked
-            if (stuckFriction > 0)
-            {
-                //rig.velocity = Vector2.MoveTowards(rig.velocity, Vector2.zero, stuckFriction/20 * Time.deltaTime);// subdivide 50 to adjust the index
-            }
-            if (rig.velocity.magnitude > 60f)
-            {
-                rig.velocity = rig.velocity.normalized * 60f;
-            }
-
-            FullMoonIndex = Mathf.MoveTowards(FullMoonIndex, nextMoonIndex, Time.deltaTime / 2f);
-
-            RefreshFullMoonIndex();
-
-            if (FullMoonIndex >= 1f)
-            {
-                if (!GameControl.Game.isFullMoon)
-                {
-                    GameControl.Game.FullMoon();
-                    posFMIndex = Vector2.Distance(transform.position, FullMoonPos) / GameControl.Game.FullMoonAnimationTime;
-                }
-                transform.position = Vector2.MoveTowards(transform.position, FullMoonPos, posFMIndex * Time.deltaTime);
-
-            }
         }
-        else
+
+        //Check if stucked
+        if (rig.velocity.magnitude > 60f)
         {
-            //Check if stucked
-            if (stuckFriction > 0)
-            {
-                //rig.velocity = Vector2.MoveTowards(rig.velocity, Vector2.zero, stuckFriction/20 * Time.deltaTime);// subdivide 50 to adjust the index
-            }
-            if (rig.velocity.magnitude > 60f)
-            {
-                rig.velocity = rig.velocity.normalized * 60f;
-            }
-
-            FullMoonIndex = Mathf.MoveTowards(FullMoonIndex, nextMoonIndex, Time.deltaTime / 2f);
-
-            RefreshFullMoonIndex();
-
-            if (FullMoonIndex >= 1f)
-            {
-                if (!GameControl.Game.isFullMoon)
-                {
-                    GameControl.Game.FullMoon();
-                    posFMIndex = Vector2.Distance(transform.position, FullMoonPos) / GameControl.Game.FullMoonAnimationTime;
-                }
-                transform.position = Vector2.MoveTowards(transform.position, FullMoonPos, posFMIndex * Time.deltaTime);
-
-            }
+            rig.velocity = rig.velocity.normalized * 60f;
         }
 
-       
+        FullMoonIndex = Mathf.MoveTowards(FullMoonIndex, nextMoonIndex, Time.deltaTime / 2f);
+
+        RefreshFullMoonIndex();
+
+        if (FullMoonIndex >= 1f)
+        {
+            if (!GameControl.Game.isFullMoon)
+            {
+
+                StartCoroutine(GameControl.Game.FullMoon());
+                posFMIndex = Vector2.Distance(transform.position, FullMoonPos) / GameControl.Game.FullMoonAnimationTime;
+            }
+            transform.position = Vector2.MoveTowards(transform.position, FullMoonPos, posFMIndex * Time.deltaTime);
+
+        }
+
     }
 
     public void RefreshFullMoonIndex()
@@ -196,15 +167,15 @@ public class Moon : MonoBehaviour
         //Set Mask Position 
         maskGO.transform.localPosition = new Vector2(FullMoonMaskPosition*FullMoonIndex,0); 
         //Set Sprite 
-        moonSprite.color = new Color(moonSprite.color.r, moonSprite.color.g, moonSprite.color.b,FullMoonIndex);
-        moonNoColorSprite.color = new Color(moonNoColorSprite.color.r, moonNoColorSprite.color.g, moonNoColorSprite.color.b, 1-FullMoonIndex);
+        moonSprite.color = new Color(moonSprite.color.r, moonSprite.color.g, moonSprite.color.b,FullMoonIndex*FullMoonMaxSaturation);
+        moonNoColorSprite.color = new Color(moonNoColorSprite.color.r, moonNoColorSprite.color.g, moonNoColorSprite.color.b, 1-FullMoonIndex * FullMoonMaxSaturation);
         //Set Light
         
         moonLight.transform.localPosition = transform.Find("Mask").localPosition/2-new Vector3(transform.Find("Sprite").GetComponent<CircleCollider2D>().radius,0);
         
-        moonLight.intensity = FullMoonIndex*5+0.5f;
-        moonLight.pointLightOuterRadius = (FullMoonLightRadius-6)*FullMoonIndex+6;  //[6, FollMoonLightRadius]
-        moonLight.falloffIntensity = (1 - FullMoonIndex) * 0.3f + 0.2f; //[0.2,0.5]
+        moonLight.intensity = FullMoonIndex*2*FullMoonMaxSaturation+0.5f;
+        moonLight.pointLightOuterRadius = (FullMoonLightRadius-6)*FullMoonIndex * FullMoonMaxSaturation + 6;  //[6, FollMoonLightRadius]
+        moonLight.falloffIntensity = (1 - FullMoonIndex * FullMoonMaxSaturation) * 0.3f + 0.2f; //[0.2,0.5]
 
         UpdatePolygonColliderChange();
 
@@ -230,7 +201,10 @@ public class Moon : MonoBehaviour
         {
             nextMoonIndex += (1f - InitFullMoonIndex) / GameControl.Game.StarNum;
             if (nextMoonIndex > 0.95f)
+            {
                 nextMoonIndex = 1f;
+            }
+                
         }        
     }
 
@@ -406,11 +380,14 @@ public class Moon : MonoBehaviour
         wanderPos=new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*r+center;
     }
 
+    public void DirectSetTargetToWanderPosition()
+    {
+        wanderPos = wanderTarget.transform.position;
+    }
+
     public void SetFullMoonIndex(float index) 
     {
         nextMoonIndex = index;
     }
 
 }
-
-//TODO: Moon shake
