@@ -53,6 +53,8 @@ public class Moon : MonoBehaviour
     public AudioSource starPickup;
     public AudioSource unstuckNoise;
 
+    public ScreenShake screenShake;
+
 
     private void Start()
     {
@@ -72,7 +74,6 @@ public class Moon : MonoBehaviour
             SetWanderTarget();
             SetNextWanderPosition();
         }
-
     }
     private void Update()
     {
@@ -292,34 +293,33 @@ public class Moon : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         Debug.Log($"Collision {collision.name}");
-
-
-        if (collision.tag=="DustCloud")
-        {
-            stuckPullingCount = 0;
-            SetStuckForce(collision.GetComponent<DustCloud>().StaticFriction);
-			stuckSound.Play();
-			stuckMoveInTimer = 2f;
-            stuckMoveInPos = collision.transform.position;
-            isStucked = true;
-        }
-
-        if (collision.tag == "Star")
-        {
-            Star star = collision.GetComponent<Star>();
-            /*
-            bool flag = false; 
-            if (Vector2.Distance(star.transform.position, transform.position) < GetComponent<CircleCollider2D>().radius && Vector2.Distance(star.transform.position, transform.Find("Mask").transform.position) > GetComponent<CircleCollider2D>().radius)
+            if (collision.tag == "DustCloud")
             {
-                flag = true;
+                stuckPullingCount = 0;
+                SetStuckForce(collision.GetComponent<DustCloud>().StaticFriction);
+                stuckSound.Play();
+                stuckMoveInTimer = 2f;
+                stuckMoveInPos = collision.transform.position;
+                isStucked = true;
             }
-            */
-            if (!star.isLit)
+
+            if (collision.tag == "Star")
             {
-                star.Lit();
-                GetStar();   
-                starPickup.Play();
-            }
+                Star star = collision.GetComponent<Star>();
+                /*
+                bool flag = false; 
+                if (Vector2.Distance(star.transform.position, transform.position) < GetComponent<CircleCollider2D>().radius && Vector2.Distance(star.transform.position, transform.Find("Mask").transform.position) > GetComponent<CircleCollider2D>().radius)
+                {
+                    flag = true;
+                }
+                */
+                if (!star.isLit)
+                {
+                    star.Lit();
+                    GetStar();
+                    starPickup.Play();
+                    StartCoroutine(screenShake.Shaking());
+                }
         }
 
     }
@@ -410,7 +410,6 @@ public class Moon : MonoBehaviour
     {
         nextMoonIndex = index;
     }
-
 }
 
 //TODO: Moon shake

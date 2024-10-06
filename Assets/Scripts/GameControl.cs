@@ -56,12 +56,16 @@ public class GameControl:MonoBehaviour
     public float FullMoonAnimationTime;
     float bgFullMoonIndex;
     float lFullMoonIndex;
-    public bool isFullMoon;
+    public bool isFullMoon = false;
+    public AudioSource baseMusicLoop;
+    public AudioSource winMusicLoop;
+
 
     private void Awake()
     {
         _gameControl = this;
         _gameControl.Init();
+        baseMusicLoop.Play();
     }
     private void Init()
     {
@@ -232,8 +236,10 @@ public class GameControl:MonoBehaviour
         bgFullMoonIndex = (1f - background.color.a) / FullMoonAnimationTime;
         lFullMoonIndex = (1f - globalLight.intensity) / FullMoonAnimationTime;
         isFullMoon = true;
-        moon.transform.GetComponent<AudioSource>().Stop();
-        moon.transform.Find("moonReprise").GetComponent<AudioSource>().Play();
+        // moon.transform.GetComponent<AudioSource>().Stop();
+        //moon.transform.Find("moonReprise").GetComponent<AudioSource>().Play();
+        baseMusicLoop.Stop();
+        winMusicLoop.Play();
     }
 
     public void Reset()

@@ -312,9 +312,11 @@ MonoBehaviour:
   FullMoonLightRadius: 90
   FullMoonPos: {x: 4.55, y: 40.55}
   CanMove: 0
+  isStucked: 0
   stuckSound: {fileID: 7282605465828491168}
   starPickup: {fileID: 2343007501149764722}
   unstuckNoise: {fileID: 2405524323634457327}
+  screenShake: {fileID: 0}
 --- !u!82 &939802167097342291
 AudioSource:
   m_ObjectHideFlags: 0
@@ -326,7 +328,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: f44c4cf2e4df04148aadbaa754c57dc0, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 1
