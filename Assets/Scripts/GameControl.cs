@@ -157,11 +157,11 @@ public class GameControl:MonoBehaviour
 
     void GenerateCloud(int generateNum)
     {
+        DustCloudList.Clear();
         if (isTotorial)
         {
             foreach (var item in GameObject.FindGameObjectsWithTag("DustCloud"))
             {
-                DustCloudList.Clear();
                 item.GetComponent<DustCloud>().Init();
                 DustCloudList.Add(item.GetComponent<DustCloud>());
             }
@@ -214,12 +214,11 @@ public class GameControl:MonoBehaviour
     void GenerateStars(int generateNum)
     {
         Randomer rnd = new Randomer();
-
+        StarList.Clear();
         if (isTotorial)
         {
             foreach (var item in GameObject.FindGameObjectsWithTag("Star"))
             {
-                StarList.Clear();
                 item.GetComponent<Star>().Init(AudioClipList[rnd.nextInt(AudioClipList.Count)]);
                 StarList.Add(item.GetComponent<Star>());
             }
