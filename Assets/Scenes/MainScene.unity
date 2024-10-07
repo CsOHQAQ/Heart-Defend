@@ -351,7 +351,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MoveSpeed: 30
-  ShakeStrength: 0
+  ShakeStrength: 0.42
   ZoomSize: 20
   ZoomSpeed: 15
   OriginalSize: 0
@@ -5668,6 +5668,21 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1866044503551763116, guid: c02ea2b29c38f4848b12d1aa718ae9ff,
         type: 3}
+      propertyPath: MaxSpeed
+      value: 28
+      objectReference: {fileID: 0}
+    - target: {fileID: 1866044503551763116, guid: c02ea2b29c38f4848b12d1aa718ae9ff,
+        type: 3}
+      propertyPath: Acclerate
+      value: 19
+      objectReference: {fileID: 0}
+    - target: {fileID: 1866044503551763116, guid: c02ea2b29c38f4848b12d1aa718ae9ff,
+        type: 3}
+      propertyPath: MaxEnergy
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1866044503551763116, guid: c02ea2b29c38f4848b12d1aa718ae9ff,
+        type: 3}
       propertyPath: pullNoise
       value: 
       objectReference: {fileID: 1695183507}
@@ -5676,6 +5691,11 @@ PrefabInstance:
       propertyPath: starTwinkle
       value: 
       objectReference: {fileID: 500779408}
+    - target: {fileID: 1866044503551763116, guid: c02ea2b29c38f4848b12d1aa718ae9ff,
+        type: 3}
+      propertyPath: PullCoolDown
+      value: 1.8
+      objectReference: {fileID: 0}
     - target: {fileID: 3812468081725539474, guid: c02ea2b29c38f4848b12d1aa718ae9ff,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -5792,7 +5812,7 @@ PrefabInstance:
     - target: {fileID: 5650809970571486246, guid: f661cb78265df694daa979753a0ea6b5,
         type: 3}
       propertyPath: WanderSpeed
-      value: 6
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 5650809970571486246, guid: f661cb78265df694daa979753a0ea6b5,
         type: 3}
