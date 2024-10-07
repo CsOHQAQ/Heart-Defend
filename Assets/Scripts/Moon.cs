@@ -92,7 +92,7 @@ public class Moon : MonoBehaviour
 
             //Random change target every 3s
             changeTargetTimer += Time.deltaTime;
-            if (changeTargetTimer > 3f && FullMoonIndex <= 0.95f)
+            if (changeTargetTimer > 6f && FullMoonIndex <= 0.95f)
             {
                 changeTargetTimer = 0;
                 SetWanderTarget();
@@ -281,6 +281,9 @@ public class Moon : MonoBehaviour
         }
         if (collision.tag == "Star")
         {
+            if (!GameControl.Game.isTotorial)
+                GetStar();
+            collision.GetComponent<Star>().Lit();
             starPickup.Play();
             StartCoroutine(screenShake.Shaking());
         }        
@@ -319,7 +322,7 @@ public class Moon : MonoBehaviour
             return;
         Randomer rnd = new Randomer();
         float choice = rnd.nextFloat();
-        if (choice<FullMoonIndex)//Choose Star
+        if (choice<FullMoonIndex&&!GameControl.Game.isTotorial)//Choose Star
         {
             Star nStar = null;
             float dis = 99999999f;

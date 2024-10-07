@@ -135,6 +135,7 @@ GameObject:
   - component: {fileID: 93556767}
   - component: {fileID: 93556770}
   - component: {fileID: 93556771}
+  - component: {fileID: 93556772}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -273,6 +274,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MoveSpeed: 20
+  ShakeStrength: 0
   ZoomSize: 15
   ZoomSpeed: 10
   OriginalSize: 0
@@ -280,6 +282,45 @@ MonoBehaviour:
   isFollowing: 1
   followGO: {fileID: 0}
   cam: {fileID: 0}
+--- !u!114 &93556772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 93556766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6be60af90c7d5f947ad3cc7060ea676c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  start: 0
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1.003263
+      value: 0.50030357
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  duration: 0.5
+  BeepBoopAnimator: {fileID: 225908791}
 --- !u!1001 &177588425
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -431,6 +472,12 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c02ea2b29c38f4848b12d1aa718ae9ff, type: 3}
+--- !u!95 &225908791 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 942622750064549044, guid: c02ea2b29c38f4848b12d1aa718ae9ff,
+    type: 3}
+  m_PrefabInstance: {fileID: 225908790}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &233161177
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1022,8 +1069,14 @@ MonoBehaviour:
   - {fileID: 8300000, guid: df97cdcfb50a9e241b12575e0fb4ca70, type: 3}
   - {fileID: 8300000, guid: 07b62ed4a8d73f34599306f5290044d5, type: 3}
   - {fileID: 8300000, guid: 950e62a011927444eb259ea9ec672a5d, type: 3}
+  StarPingPrefab: {fileID: 0}
+  StarPingList: []
+  GlobalSaturate: 0
   FullMoonAnimationTime: 30
   isFullMoon: 0
+  baseMusicLoop: {fileID: 0}
+  winMusicLoop: {fileID: 0}
+  SaturateTime: 0
 --- !u!4 &1022778047
 Transform:
   m_ObjectHideFlags: 0
@@ -1052,6 +1105,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Moon
       objectReference: {fileID: 0}
+    - target: {fileID: 5650809970571486246, guid: f661cb78265df694daa979753a0ea6b5,
+        type: 3}
+      propertyPath: screenShake
+      value: 
+      objectReference: {fileID: 93556772}
     - target: {fileID: 5650809970571486246, guid: f661cb78265df694daa979753a0ea6b5,
         type: 3}
       propertyPath: ShakeStrength

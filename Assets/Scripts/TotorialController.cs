@@ -34,10 +34,14 @@ public class TotorialController : MonoBehaviour
             if (Vector2.Distance(GameControl.Game.player.transform.position,GameControl.Game.moon.transform.position)<StayRange)
             {
                 timer += Time.deltaTime;
+                textBub.Tmp.color = new Color(1, 1, 1, Mathf.MoveTowards(textBub.Tmp.color.a, 0, Time.deltaTime / 3f));
                 TitleUI.color = new Color(1, 1, 1, Mathf.MoveTowards(TitleUI.color.a, 0, Time.deltaTime / 3f));
                 if (timer >= StayTime&&flag)
                 {
                     flag = false;
+                    textBub.texts.RemoveAt(0);
+                    textBub.Tmp.text = "";
+                    GameControl.Game.player.CanMove = false;
                     textBub.AddText("The sky looks great tonight. Woah! It looks even better from your perspective.",6f);
                     Action act = ()=> {SwitchStep(TotorialStep.MoonMoveToCloud);};
                     textBub.AddText("Wait, where are you going?",6f,act);
@@ -46,6 +50,7 @@ public class TotorialController : MonoBehaviour
             }
             else
             {
+                textBub.Tmp.color = new Color(1, 1, 1, Mathf.MoveTowards(TitleUI.color.a, 1, Time.deltaTime / 3f));
                 TitleUI.color = new Color(1, 1, 1, Mathf.MoveTowards(TitleUI.color.a, 1, Time.deltaTime / 3f));
             }
 
@@ -111,7 +116,7 @@ public class TotorialController : MonoBehaviour
             GameControl.Game.player.CanPull= false;
             GameControl.Game.cam.isFollowing = false;
             flag = true;
-            StartCoroutine(ShowText("Meet the moon to start", 6, 2));
+            StartCoroutine(ShowText("Meet the moon to start", 99999999, 2));
         }
 
         else if (next == TotorialStep.MoonMoveToCloud)
