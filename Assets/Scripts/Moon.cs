@@ -266,6 +266,8 @@ public class Moon : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         Debug.Log($"Collision {collision.name}");
+        if (GameControl.Game.isFullMoon)
+            return;
 
 
         if (collision.tag=="DustCloud")
@@ -299,6 +301,8 @@ public class Moon : MonoBehaviour
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
+        if (GameControl.Game.isFullMoon)
+            return;
         Debug.Log($"Collision leave {collision.name}");
         if (collision.tag == "DustCloud")
         {
@@ -312,7 +316,6 @@ public class Moon : MonoBehaviour
     private void UpdatePolygonColliderChange()
     {
         PolygonCollider2D poly=GetComponent<PolygonCollider2D>();
-
         Vector2[] nPath =new Vector2[poly.points.Length];
         poly.points.CopyTo(nPath,0);        
 
