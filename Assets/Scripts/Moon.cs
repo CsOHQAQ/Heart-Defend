@@ -92,7 +92,7 @@ public class Moon : MonoBehaviour
 
             //Random change target every 3s
             changeTargetTimer += Time.deltaTime;
-            if (changeTargetTimer > 3f && FullMoonIndex <= 0.95f)
+            if (changeTargetTimer > 5f && FullMoonIndex <= 0.95f)
             {
                 changeTargetTimer = 0;
                 SetWanderTarget();
@@ -275,7 +275,7 @@ public class Moon : MonoBehaviour
             stuckPullingCount = 0;
             SetStuckForce(collision.GetComponent<DustCloud>().StaticFriction);
             stuckSound.Play();
-            stuckMoveInTimer = 2f;
+            stuckMoveInTimer = 2.6f;
             stuckMoveInPos = collision.transform.position;
             isStucked = true;
         }
