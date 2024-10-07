@@ -75,11 +75,14 @@ public class PlayerControl : MonoBehaviour
             transform.eulerAngles = new Vector3(0, 0, Mathf.MoveTowardsAngle(v.z, targetAngle, RotateSpeed * Time.deltaTime));
             rig.velocity = Vector2.MoveTowards(rig.velocity, targetFacing * MaxSpeed, curEnergy / MaxEnergy * Acclerate * Time.deltaTime);
             if (!starTwinkle.isPlaying)
-                starTwinkle.Play();
+            { //starTwinkle.volume = 0.1f;
+              starTwinkle.Play();
+            }
+                
         }
         else//Stopping
         {
-            rig.drag = Acclerate / (rig.velocity.magnitude + 1f);
+            rig.drag = 2.5f*Acclerate / (rig.velocity.magnitude + 1f);
             //rig.velocity = Vector2.MoveTowards(rig.velocity,Vector2.zero,Acclerate*Time.deltaTime/Mathf.Log(1+ rig.velocity.magnitude));
             if (GetComponent<Rigidbody2D>().velocity.magnitude < 1)
             {
@@ -114,7 +117,7 @@ public class PlayerControl : MonoBehaviour
                     curEnergy = 0;
                 if (!pullNoise.isPlaying)
                 {
-                    pullNoise.volume = 1f;
+                    pullNoise.volume = 0.16f;
                     pullNoise.Play();
                 }
                 curPullForce += (curEnergy / MaxEnergy) * ForceIncreasement * Time.deltaTime;

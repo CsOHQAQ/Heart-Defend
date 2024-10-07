@@ -275,7 +275,7 @@ public class Moon : MonoBehaviour
             stuckPullingCount = 0;
             SetStuckForce(collision.GetComponent<DustCloud>().StaticFriction);
             stuckSound.Play();
-            stuckMoveInTimer = 2f;
+            stuckMoveInTimer = 2.6f;
             stuckMoveInPos = collision.transform.position;
             isStucked = true;
         }

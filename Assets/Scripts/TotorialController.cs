@@ -39,12 +39,10 @@ public class TotorialController : MonoBehaviour
                 if (timer >= StayTime&&flag)
                 {
                     flag = false;
-                    textBub.texts.RemoveAt(0);
-                    textBub.Tmp.text = "";
-                    GameControl.Game.player.CanMove = false;
-                    textBub.AddText("The sky looks great tonight. Woah! It looks even better from your perspective.",6f);
+                    textBub.AddText("I always forget how much of the sky I get to see when I'm with you",6f);
                     Action act = ()=> {SwitchStep(TotorialStep.MoonMoveToCloud);};
-                    textBub.AddText("Wait, where are you going?",6f,act);
+                    textBub.AddText("What's wrong? You aren't saying anything.", 3f);
+                    textBub.AddText("Wait, where are you going?",3f,act);
                     
                 }
             }
@@ -60,8 +58,8 @@ public class TotorialController : MonoBehaviour
         {
             if (GameControl.Game.moon.isStucked)
             {
-                textBub.AddText("My friend has been engulfed by those dark clouds, I need to help the moon out of them.", 6f);
-                textBub.AddText("Maybe I can pull them out with my light.",6f);
+                textBub.AddText("My friend has been engulfed by those dark clouds. I need to help the moon.", 6f);
+                textBub.AddText("I wonder if I can help pull them out with my light.",6f);
                 GameControl.Game.moon.SetFullMoonIndex(0.3f);
                 SwitchStep(TotorialStep.PullTheMoon);
             }
@@ -71,10 +69,11 @@ public class TotorialController : MonoBehaviour
         {
             if (!GameControl.Game.moon.isStucked)
             {
-                textBub.AddText("That took a lot of effort, I must take care of myself to not burn out.", 6f);
-                textBub.AddText("Those clouds affected them really badly. They look like they have just shut down.", 6f);
-                textBub.AddText("I could help them see the stars again, to brighten their mood.", 6);
+                textBub.AddText("I'm glad that works, although it took a lot of effort. I should really take care of myself to not burn out.", 6f);
+                textBub.AddText("Those clouds have really affected the moon badly. They seem a lot more down.", 6f);
+                textBub.AddText("But the stars shine so bright! Maybe if I show them those stars again, It could brighten their mood.", 6);
                 SwitchStep(TotorialStep.CollectStar);
+                textBub.AddText("It's nice to stay close to the moon. Sometimes it helps to just have company. It also helps me see more of the sky. The stars to collect, and the clouds to avoid", 7f);
             }
         }
         else if (curStep == TotorialStep.CollectStar)
@@ -91,8 +90,8 @@ public class TotorialController : MonoBehaviour
             if (flag&&flag2)
             {
                 flag= false;
-                textBub.AddText("Does that help? Maybe we can seek more stars.",6f);
-                textBub.AddText("I know the best thing I can do is support the moon, no matter what.", 6f, () => { SwitchStep(TotorialStep.Final); });
+                textBub.AddText("I hope I'm helping. A few more stars ought to do the trick.",6f);
+                textBub.AddText("The best thing I can do is support the moon, no matter what.", 6f, () => { SwitchStep(TotorialStep.Final); });
                           
             }
         }
