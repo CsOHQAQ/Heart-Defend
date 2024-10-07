@@ -39,6 +39,9 @@ public class TotorialController : MonoBehaviour
                 if (timer >= StayTime&&flag)
                 {
                     flag = false;
+                    textBub.texts.RemoveAt(0);
+                    textBub.Tmp.text = "";
+                    GameControl.Game.player.CanMove = false;
                     textBub.AddText("I always forget how much of the sky I get to see when I'm with you",6f);
                     Action act = ()=> {SwitchStep(TotorialStep.MoonMoveToCloud);};
                     textBub.AddText("What's wrong? You aren't saying anything.", 3f);
