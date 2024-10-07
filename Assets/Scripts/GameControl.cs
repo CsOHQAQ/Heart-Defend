@@ -62,11 +62,12 @@ public class GameControl:MonoBehaviour
     public float FullMoonAnimationTime;
     float bgFullMoonIndex;
     float lFullMoonIndex;
-    Volume volume;
+	Volume volume;
     GameObject testGO;
     ColorAdjustments colorAdjust;
     public bool isFullMoon;
-    public float SaturateTime;
+	public AudioSource baseMusicLoop;
+    public AudioSource winMusicLoop;    public float SaturateTime;
     bool isSaturating=false;
     bool isMoonMovingCenter = false;
     Image endUI;
@@ -76,6 +77,7 @@ public class GameControl:MonoBehaviour
     {
         _gameControl = this;
         _gameControl.Init();
+        baseMusicLoop.Play();
     }
     private void Init()
     {
@@ -275,8 +277,10 @@ public class GameControl:MonoBehaviour
         
         bgFullMoonIndex = (1f - background.color.a) / FullMoonAnimationTime;
         lFullMoonIndex = (1f - globalLight.intensity) / FullMoonAnimationTime;        
-        moon.transform.GetComponent<AudioSource>().Stop();
-        moon.transform.Find("moonReprise").GetComponent<AudioSource>().Play();
+        // moon.transform.GetComponent<AudioSource>().Stop();
+        //moon.transform.Find("moonReprise").GetComponent<AudioSource>().Play();
+        baseMusicLoop.Stop();
+        winMusicLoop.Play();
     }
     */
     public void Reset()

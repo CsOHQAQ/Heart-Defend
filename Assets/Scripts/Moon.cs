@@ -54,6 +54,8 @@ public class Moon : MonoBehaviour
     public AudioSource starPickup;
     public AudioSource unstuckNoise;
 
+    public ScreenShake screenShake;
+
 
     private void Start()
     {
@@ -73,7 +75,6 @@ public class Moon : MonoBehaviour
             SetWanderTarget();
             SetNextWanderPosition();
         }
-
     }
     private void Update()
     {
@@ -266,37 +267,23 @@ public class Moon : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         Debug.Log($"Collision {collision.name}");
-        if (GameControl.Game.isFullMoon)
+		if (GameControl.Game.isFullMoon)
             return;
 
-
-        if (collision.tag=="DustCloud")
+        if(collision.tag=="DustCloud")
         {
             stuckPullingCount = 0;
             SetStuckForce(collision.GetComponent<DustCloud>().StaticFriction);
-			stuckSound.Play();
-			stuckMoveInTimer = 2f;
+            stuckSound.Play();
+            stuckMoveInTimer = 2f;
             stuckMoveInPos = collision.transform.position;
             isStucked = true;
         }
-
         if (collision.tag == "Star")
         {
-            Star star = collision.GetComponent<Star>();
-            /*
-            bool flag = false; 
-            if (Vector2.Distance(star.transform.position, transform.position) < GetComponent<CircleCollider2D>().radius && Vector2.Distance(star.transform.position, transform.Find("Mask").transform.position) > GetComponent<CircleCollider2D>().radius)
-            {
-                flag = true;
-            }
-            */
-            if (!star.isLit)
-            {
-                star.Lit();
-                GetStar();   
-                starPickup.Play();
-            }
-        }
+            starPickup.Play();
+            StartCoroutine(screenShake.Shaking());
+        }        
 
     }
     private void OnTriggerExit2D(Collider2D collision)
@@ -392,5 +379,4 @@ public class Moon : MonoBehaviour
     {
         nextMoonIndex = index;
     }
-
 }

@@ -47,6 +47,7 @@ public class Star : MonoBehaviour
             light2D.intensity = 1f;
             //light2D.pointLightOuterRadius = Mathf.Lerp(light2D.pointLightOuterRadius, LitRadius, LitSpeed * Time.deltaTime);
             //light2D.falloffIntensity = Mathf.Lerp(light2D.falloffIntensity, 0.5f, LitSpeed * Time.deltaTime);
+            sound.Stop();
         }
         else
         {
@@ -60,6 +61,7 @@ public class Star : MonoBehaviour
         {
             if (obj.tag == "Moon")
                 isMoonIn = true;
+            
             if (obj.tag == "MoonMask")
                 isMaskIn = true;
         }
